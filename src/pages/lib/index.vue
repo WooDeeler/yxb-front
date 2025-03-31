@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <text>购物车页面</text>
+    <text>院校资源</text>
   </view>
 </template>
 

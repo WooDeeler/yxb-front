@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <text>分类页面</text>
+    <text>私信</text>
   </view>
 </template>
 

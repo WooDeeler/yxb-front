@@ -3,7 +3,25 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "首页"
+        "navigationBarTitleText": "研习宝"
+      }
+    },
+    {
+      "path": "pages/searchPage/index",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    },
+    {
+      "path": "pages/searchResult/index",
+      "style": {
+        "navigationBarTitleText": "搜索结果"
+      }
+    },
+    {
+      "path": "pages/postPage/index",
+      "style": {
+        "navigationBarTitleText": "发帖"
       }
     },
     {
@@ -13,9 +31,9 @@
       }
     },
     {
-      "path": "pages/post/index",
+      "path": "pages/lib/index",
       "style": {
-        "navigationBarTitleText": "发帖"
+        "navigationBarTitleText": "资源库"
       }
     },
     {
@@ -27,7 +45,7 @@
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "论坛",
+    "navigationBarTitleText": "研习宝",
     "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#F8F8F8"
   },
@@ -39,25 +57,21 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
         "iconPath": "static/tabbar/home.png",
         "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
+        "pagePath": "pages/lib/index",
+        "iconPath": "static/tabbar/lib.png",
+        "selectedIconPath": "static/tabbar/lib-active.png"
+      },
+      {
         "pagePath": "pages/message/index",
-        "text": "消息",
         "iconPath": "static/tabbar/message.png",
         "selectedIconPath": "static/tabbar/message-active.png"
       },
       {
-        "pagePath": "pages/post/index",
-        "text": "发帖",
-        "iconPath": "static/tabbar/post.png",
-        "selectedIconPath": "static/tabbar/post-active.png"
-      },
-      {
         "pagePath": "pages/my/index",
-        "text": "我的",
         "iconPath": "static/tabbar/user.png",
         "selectedIconPath": "static/tabbar/user-active.png"
       }

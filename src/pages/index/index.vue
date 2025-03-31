@@ -1,5 +1,18 @@
 <template>
   <view class="container">
+    <view class="nav-bar">
+      <view @click="navigateToSearchPage">
+        <uni-search-bar
+          placeholder="输入关键词搜索"
+          radius="40"
+          clearButton="auto"
+        />
+      </view>
+      <view class="post-button" @click="navigateToPostPage">
+        <uni-icons type="plus" color="#fff" size="20" />
+        <text style="color: #fff">发帖</text>
+      </view>
+    </view>
     <view class="post-list">
       <view v-for="(post, index) in posts" :key="index" class="post-item">
         <view class="post-header">
@@ -30,10 +43,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const posts = ref([
   {
-    avatar: "/static/avatar.png",
+    avatar: "/static/logo.png",
     username: "用户1",
     time: "10分钟前",
     title: "这是一个帖子标题",
@@ -42,7 +56,7 @@ const posts = ref([
     likes: 20,
   },
   {
-    avatar: "/static/avatar.png",
+    avatar: "/static/logo.png",
     username: "用户2",
     time: "30分钟前",
     title: "另一个帖子标题",
@@ -51,6 +65,16 @@ const posts = ref([
     likes: 15,
   },
 ]);
+
+const router = useRouter();
+
+const navigateToSearchPage = () => {
+  uni.navigateTo({ url: "/pages/searchPage/index" });
+};
+
+const navigateToPostPage = () => {
+  uni.navigateTo({ url: "/pages/postPage/index" });
+};
 </script>
 
 <style lang="scss">
@@ -128,6 +152,30 @@ const posts = ref([
         margin-left: 8rpx;
       }
     }
+  }
+}
+
+.nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 20rpx;
+
+  > view:first-child {
+    flex-grow: 1;
+    max-width: 80%;
+  }
+
+  .post-button {
+    flex-shrink: 0;
+    background-color: #007aff;
+    border-radius: 40rpx;
+    padding: 16rpx 32rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
   }
 }
 </style>
