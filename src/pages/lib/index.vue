@@ -6,7 +6,7 @@
 
 <script setup lang="ts"></script>
 
-<style>
+<style lang="scss">
 .container {
   padding: 20rpx;
 }

@@ -2,7 +2,6 @@
   <view class="container">
     <!-- 头部导航 -->
     <view class="nav-bar">
-      <text class="iconfont icon-back">&#xe601;</text>
       <text class="page-title">发布帖子</text>
       <button class="submit-btn" :disabled="!postContent" @click="handleSubmit">
         发布
@@ -57,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed } from "vue";
+import { ref, computed } from "vue";
 
 const postContent = ref("");
 const selectedImages = ref<any[]>([]);
@@ -149,11 +148,9 @@ const navigateBack = () => {
   background-color: #f5f5f5;
   min-height: 100vh;
 }
-
 .nav-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 20rpx;
   background-color: #fff;
   border-bottom: 1rpx solid #eee;
@@ -161,6 +158,7 @@ const navigateBack = () => {
   .page-title {
     font-size: 32rpx;
     font-weight: bold;
+    margin-right: 10rpx; // 让标题靠左，后续元素靠右
   }
 
   .submit-btn {
@@ -169,6 +167,7 @@ const navigateBack = () => {
     padding: 12rpx 32rpx;
     border-radius: 40rpx;
     font-size: 28rpx;
+    margin-right: 10rpx; // 与标题保持间距
 
     &[disabled] {
       background-color: #007aff;
@@ -176,7 +175,6 @@ const navigateBack = () => {
     }
   }
 }
-
 .content-input {
   width: 100%;
   min-height: 300rpx;
