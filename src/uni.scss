@@ -1,76 +1,56 @@
-/**
- * 这里是uni-app内置的常用样式变量
- *
- * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
- * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
- *
- */
+@font-face {
+  font-family: "iconfont";
+  src: 
+      url('data:application/x-font-woff;charset=utf-8;base64,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') format('woff'),
+      url('iconfont.ttf?t=1743438750921') format('truetype');
+}
 
-/**
- * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
- *
- * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
- */
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* 颜色变量 */
 
-/* 行为相关颜色 */
-$uni-color-primary: #007aff;
-$uni-color-success: #4cd964;
-$uni-color-warning: #f0ad4e;
-$uni-color-error: #dd524d;
+.icon-a-AboutUs:before {
+  content: "\e76b";
+}
 
-/* 文字基本颜色 */
-$uni-text-color: #333; // 基本色
-$uni-text-color-inverse: #fff; // 反色
-$uni-text-color-grey: #999; // 辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: #808080;
-$uni-text-color-disable: #c0c0c0;
+.icon-my:before {
+  content: "\e76c";
+}
 
-/* 背景颜色 */
-$uni-bg-color: #fff;
-$uni-bg-color-grey: #f8f8f8;
-$uni-bg-color-hover: #f1f1f1; // 点击状态颜色
-$uni-bg-color-mask: rgba(0, 0, 0, 0.4); // 遮罩颜色
+.icon-home:before {
+  content: "\e76d";
+}
 
-/* 边框颜色 */
-$uni-border-color: #c8c7cc;
+.icon-arrow-left:before {
+  content: "\e770";
+}
 
-/* 尺寸变量 */
+.icon-sort:before {
+  content: "\e771";
+}
 
-/* 文字尺寸 */
-$uni-font-size-sm: 12px;
-$uni-font-size-base: 14px;
-$uni-font-size-lg: 16;
+.icon-optDown:before {
+  content: "\e772";
+}
 
-/* 图片尺寸 */
-$uni-img-size-sm: 20px;
-$uni-img-size-base: 26px;
-$uni-img-size-lg: 40px;
+.icon-shuaxin:before {
+  content: "\e776";
+}
 
-/* Border Radius */
-$uni-border-radius-sm: 2px;
-$uni-border-radius-base: 3px;
-$uni-border-radius-lg: 6px;
-$uni-border-radius-circle: 50%;
+.icon-shangchuan:before {
+  content: "\e77c";
+}
 
-/* 水平间距 */
-$uni-spacing-row-sm: 5px;
-$uni-spacing-row-base: 10px;
-$uni-spacing-row-lg: 15px;
+.icon-zhishiku:before {
+  content: "\e77d";
+}
 
-/* 垂直间距 */
-$uni-spacing-col-sm: 4px;
-$uni-spacing-col-base: 8px;
-$uni-spacing-col-lg: 12px;
+.icon-ykjs:before {
+  content: "\e786";
+}
 
-/* 透明度 */
-$uni-opacity-disabled: 0.3; // 组件禁用态的透明度
-
-/* 文章场景相关 */
-$uni-color-title: #2c405a; // 文章标题颜色
-$uni-font-size-title: 20px;
-$uni-color-subtitle: #555; // 二级标题颜色
-$uni-font-size-subtitle: 18px;
-$uni-color-paragraph: #3f536e; // 文章段落颜色
-$uni-font-size-paragraph: 15px;

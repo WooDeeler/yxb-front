@@ -11,4 +11,5 @@ onHide(() => {
 });
 </script>
 <style>
+@import "static/fonts/iconfont.css"
 </style>
