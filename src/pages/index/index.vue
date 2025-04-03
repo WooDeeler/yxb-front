@@ -9,8 +9,8 @@
         />
       </view>
       <view class="post-button" @click="navigateToPostPage">
-        <uni-icons type="plus" color="#fff" size="20" />
-        <text style="color: #fff">发帖</text>
+        <uni-icons type="plus" color="#fff" size="15" />
+        <text style="color: #fff; font-size: 24rpx">发帖</text>
       </view>
     </view>
     <view class="post-list">
@@ -170,12 +170,13 @@ const navigateToPostPage = () => {
   .post-button {
     flex-shrink: 0;
     background-color: #007aff;
-    border-radius: 40rpx;
-    padding: 16rpx 32rpx;
+    border-radius: 30rpx;
+    padding: 10rpx 32rpx;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8rpx;
+    height: 50rpx; /* 与搜索框保持一致的高度 */
   }
 }
 </style>

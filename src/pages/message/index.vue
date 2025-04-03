@@ -14,7 +14,7 @@
         v-for="(item, index) in messages"
         :key="index"
         class="message-item"
-        @longpress="() => showDeleteBtn(index)"
+        @longpress="() => showActionPopup(index)"
       >
         <image class="avatar" :src="item.avatar" />
         <view class="content">
@@ -24,9 +24,21 @@
           </view>
           <text class="preview">{{ item.preview }}</text>
         </view>
-        <view class="delete-btn" @click="deleteMessage(index)">删除</view>
       </view>
     </scroll-view>
+
+    <!-- 操作弹窗 -->
+    <uni-popup ref="popup" type="bottom">
+      <view class="popup-content">
+        <view class="popup-item delete" @click="handleDelete">
+          <text class="iconfont icon-delete"></text>
+          <text>删除</text>
+        </view>
+        <view class="popup-item cancel" @click="closePopup">
+          <text>取消</text>
+        </view>
+      </view>
+    </uni-popup>
   </view>
 </template>
 
@@ -38,7 +50,6 @@ interface MessageItem {
   name: string;
   time: string;
   preview: string;
-  showDelete: boolean;
 }
 
 const messages = ref<MessageItem[]>([
@@ -47,32 +58,39 @@ const messages = ref<MessageItem[]>([
     name: "张三",
     time: "12:30",
     preview: "你好，最近怎么样？",
-    showDelete: false,
   },
   {
     avatar: "/static/logo.png",
     name: "李四",
     time: "昨天",
     preview: "项目进展如何？",
-    showDelete: false,
   },
   {
     avatar: "/static/logo.png",
     name: "王五",
     time: "星期一",
     preview: "记得明天开会",
-    showDelete: false,
   },
 ]);
 
-const showDeleteBtn = (index: number) => {
-  messages.value.forEach((item, i) => {
-    item.showDelete = i === index;
-  });
+const popup = ref();
+const selectedIndex = ref<number>(-1);
+
+const showActionPopup = (index: number) => {
+  selectedIndex.value = index;
+  popup.value.open();
 };
 
-const deleteMessage = (index: number) => {
-  messages.value.splice(index, 1);
+const handleDelete = () => {
+  if (selectedIndex.value !== -1) {
+    messages.value.splice(selectedIndex.value, 1);
+    selectedIndex.value = -1;
+  }
+  closePopup();
+};
+
+const closePopup = () => {
+  popup.value.close();
 };
 </script>
 
@@ -151,25 +169,31 @@ const deleteMessage = (index: number) => {
   white-space: nowrap;
 }
 
-.delete-btn {
-  position: absolute;
-  right: 20rpx;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 80rpx;
-  height: 60rpx;
+.popup-content {
+  background-color: white;
+  border-radius: 20rpx 20rpx 0 0;
+  overflow: hidden;
+}
+
+.popup-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f00;
-  color: white;
-  border-radius: 10rpx;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
+  height: 100rpx;
+  font-size: 32rpx;
+  border-bottom: 1rpx solid #eee;
 
-.message-item:hover .delete-btn,
-.message-item.active .delete-btn {
-  opacity: 1;
+  &.delete {
+    color: #ff0000;
+  }
+
+  &.cancel {
+    color: #333;
+  }
+
+  .iconfont {
+    margin-right: 10rpx;
+    font-size: 36rpx;
+  }
 }
 </style>
