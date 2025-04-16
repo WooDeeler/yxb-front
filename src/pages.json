@@ -7,6 +7,12 @@
       }
     },
     {
+      "path": "pages/postDetail/index",
+      "style": {
+        "navigationBarTitleText": "动态详情"
+      }
+    },
+    {
       "path": "pages/searchPage/index",
       "style": {
         "navigationBarTitleText": "搜索"
@@ -31,6 +37,12 @@
       }
     },
     {
+      "path": "pages/chat/index",
+      "style": {
+        "navigationBarTitleText": "聊天"
+      }
+    },
+    {
       "path": "pages/lib/index",
       "style": {
         "navigationBarTitleText": "资源库"
@@ -40,6 +52,24 @@
       "path": "pages/my/index",
       "style": {
         "navigationBarTitleText": "我的"
+      }
+    },
+    {
+      "path": "pages/settings/index",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/about/index",
+      "style": {
+        "navigationBarTitleText": "关于"
+      }
+    },
+    {
+      "path": "pages/collections/index",
+      "style": {
+        "navigationBarTitleText": "收藏"
       }
     }
   ],

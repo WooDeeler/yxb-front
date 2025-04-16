@@ -32,11 +32,11 @@ const router = useRouter();
 const searchValue = ref("");
 
 const hotList = ref([
-  { keyword: "前端开发", hot: true },
-  { keyword: "uni-app教程", hot: true },
-  { keyword: "Vue3更新" },
-  { keyword: "小程序开发" },
-  { keyword: "JavaScript基础" },
+  { keyword: "考研数学", hot: true },
+  { keyword: "英语真题", hot: true },
+  { keyword: "政治大纲" },
+  { keyword: "专业课复习" },
+  { keyword: "考研调剂" },
 ]);
 
 const handleSearch = () => {
@@ -75,7 +75,7 @@ const selectHot = (item: { keyword: string }) => {
     align-items: center;
     border-bottom: 1rpx solid #eee;
     .index {
-      color: #f40;
+      color: rgb(34, 158, 215);
       font-size: 28rpx;
       margin-right: 20rpx;
     }
@@ -85,8 +85,8 @@ const selectHot = (item: { keyword: string }) => {
       color: #333;
     }
     .hot-tag {
-      background: #f40;
-      color: #fff;
+      background: rgb(245, 90, 34);
+      color: rgb(0, 0, 0) ;
       font-size: 20rpx;
       padding: 4rpx 12rpx;
       border-radius: 8rpx;

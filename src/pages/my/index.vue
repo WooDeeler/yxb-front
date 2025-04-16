@@ -1,32 +1,28 @@
 <template>
   <view class="container">
     <view class="profile-header">
-      <image
-        class="avatar"
-        src="../../static/logo.png"
-        mode="aspectFill"
-      ></image>
+      <image class="avatar" src="/static/myav.svg" mode="aspectFill"></image>
       <view class="user-info">
-        <text class="username">用户名</text>
-        <text class="bio">微信号: wxid_123456</text>
+        <text class="username">一研为定</text>
+        <text class="bio">UID: 123456</text>
         <view class="qr-code">
-          <uni-icons type="scan" size="20"></uni-icons>
+          <uni-icons type="person" size="20"></uni-icons>
         </view>
       </view>
     </view>
 
     <view class="menu-list">
-      <view class="menu-item" @click="navigateTo('pages/settings/index')">
+      <view class="menu-item" @click="navigateTo('/pages/settings/index')">
         <uni-icons type="settings" size="20"></uni-icons>
         <text>设置</text>
         <uni-icons type="forward" size="16"></uni-icons>
       </view>
-      <view class="menu-item" @click="navigateTo('pages/collections/index')">
+      <view class="menu-item" @click="navigateTo('/pages/collections/index')">
         <uni-icons type="star" size="20"></uni-icons>
         <text>收藏</text>
         <uni-icons type="forward" size="16"></uni-icons>
       </view>
-      <view class="menu-item" @click="navigateTo('pages/about/index')">
+      <view class="menu-item" @click="navigateTo('/pages/about/index')">
         <uni-icons type="info" size="20"></uni-icons>
         <text>关于</text>
         <uni-icons type="forward" size="16"></uni-icons>
@@ -35,7 +31,11 @@
   </view>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const navigateTo = (url: string) => {
+  uni.navigateTo({ url });
+};
+</script>
 
 <style lang="scss">
 .container {
