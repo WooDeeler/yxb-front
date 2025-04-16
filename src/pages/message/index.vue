@@ -14,6 +14,7 @@
         v-for="(item, index) in messages"
         :key="index"
         class="message-item"
+        @click="navigateToChat"
         @longpress="() => showActionPopup(index)"
       >
         <image class="avatar" :src="item.avatar" />
@@ -44,6 +45,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 interface MessageItem {
   avatar: string;
@@ -54,22 +58,22 @@ interface MessageItem {
 
 const messages = ref<MessageItem[]>([
   {
-    avatar: "/static/logo.png",
-    name: "张三",
+    avatar: "/static/ulogo/ECJTU.svg",
+    name: "华东交通大学备考群",
     time: "12:30",
-    preview: "你好，最近怎么样？",
+    preview: "阁谈 : 同学们加油!",
   },
   {
-    avatar: "/static/logo.png",
-    name: "李四",
+    avatar: "/static/gcard.svg",
+    name: "413复习打卡小组",
     time: "昨天",
-    preview: "项目进展如何？",
+    preview: "lihan : 今天打卡了吗?",
   },
   {
-    avatar: "/static/logo.png",
-    name: "王五",
+    avatar: "/static/lls.svg",
+    name: "考研数一答疑群",
     time: "星期一",
-    preview: "记得明天开会",
+    preview: "廖老师 : 每天晚上讲模拟卷",
   },
 ]);
 
@@ -92,6 +96,10 @@ const handleDelete = () => {
 const closePopup = () => {
   popup.value.close();
 };
+
+const navigateToChat = () => {
+  uni.navigateTo({ url: "/pages/chat/index" });
+};
 </script>
 
 <style lang="scss">
@@ -104,7 +112,7 @@ const closePopup = () => {
 
 .search-bar {
   padding: 20rpx;
-  background-color: #007aff;
+  background-color: #e6e6e6;
 }
 
 .search-input {
