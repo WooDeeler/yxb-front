@@ -6,6 +6,15 @@
         <text class="iconfont icon-search"></text>
         <input placeholder="搜索" />
       </view>
+      <view class="add-btn" @click="toggleAddMenu">
+        <uni-icons type="plus" size="24" color="#333" />
+        <view v-if="showMenu" class="menu-container" @click.stop>
+          <view class="menu-item" @click="handleMenuClick('group')">
+            <uni-icons type="person-add" size="20" />
+            <text>发起群聊</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <!-- 消息列表 -->
@@ -73,12 +82,13 @@ const messages = ref<MessageItem[]>([
     avatar: "/static/lls.svg",
     name: "考研数一答疑群",
     time: "星期一",
-    preview: "廖老师 : 每天晚上讲模拟卷",
+    preview: "廖老师 : 明天晚上讲模拟卷",
   },
 ]);
 
 const popup = ref();
 const selectedIndex = ref<number>(-1);
+const showMenu = ref(false);
 
 const showActionPopup = (index: number) => {
   selectedIndex.value = index;
@@ -100,6 +110,29 @@ const closePopup = () => {
 const navigateToChat = () => {
   uni.navigateTo({ url: "/pages/chat/index" });
 };
+
+const toggleAddMenu = () => {
+  showMenu.value = !showMenu.value;
+};
+
+const handleMenuClick = (type: string) => {
+  showMenu.value = false;
+  switch (type) {
+    case "group":
+      uni.navigateTo({ url: "/pages/chat/index?type=group&create=true" });
+      break;
+    case "friend":
+      uni.navigateTo({ url: "/pages/chat/index?type=friend" });
+      break;
+    case "scan":
+      uni.scanCode({
+        success: (res) => {
+          console.log("扫码结果:", res.result);
+        },
+      });
+      break;
+  }
+};
 </script>
 
 <style lang="scss">
@@ -107,12 +140,63 @@ const navigateToChat = () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(to bottom, #e6f2ff, #f5f5f5 1000rpx);
 }
 
 .search-bar {
+  display: flex;
   padding: 20rpx;
-  background-color: #e6e6e6;
+  // background-color: #f5f5f5;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.add-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.menu-container {
+  position: absolute;
+  right: 0;
+  top: 80rpx;
+  width: 240rpx;
+  background: #fff;
+  border-radius: 8rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.menu-item {
+  padding: 20rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 1rpx solid #f5f5f5;
+
+  uni-icons {
+    margin-right: 20rpx;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .search-input {
@@ -140,6 +224,8 @@ const navigateToChat = () => {
   background-color: white;
   border-bottom: 1rpx solid #eee;
   transition: transform 0.3s;
+  border-radius: 10rpx;
+  margin: 10rpx 20rpx;
 }
 
 .avatar {

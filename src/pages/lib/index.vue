@@ -42,7 +42,12 @@
 
     <!-- 院校列表 -->
     <view class="school-list">
-      <view class="school-item" v-for="school in schools" :key="school.id">
+      <view
+        class="school-item"
+        v-for="school in schools"
+        :key="school.id"
+        @click="navigateToLibDetail(school.id)"
+      >
         <image class="school-logo" :src="school.logo" mode="aspectFit" />
         <view class="school-info">
           <text class="school-name">{{ school.name }}</text>
@@ -95,6 +100,11 @@ const handleTypeSelect = (type: string) => {
   selectedType.value = type;
   showTypeDropdown.value = false;
 };
+
+
+const navigateToLibDetail = (schoolId: number) => {
+  uni.navigateTo({ url: `/pages/libDetail/index` });
+}
 
 const schools = [
   {
@@ -191,16 +201,18 @@ const schools = [
 <style lang="scss">
 .container {
   padding: 20rpx;
+  background: linear-gradient(to bottom, #e6f2ff, #f5f5f5 1000rpx);
 
   .search-box {
     position: relative;
     margin-bottom: 20rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 
     .search-input {
       width: 85%;
       height: 80rpx;
       padding: 0 80rpx 0 30rpx;
-      background: #f5f5f5;
+      background: #fefefe;
       border-radius: 40rpx;
       font-size: 28rpx;
     }
@@ -226,11 +238,17 @@ const schools = [
       align-items: center;
       justify-content: space-between;
       padding: 0 30rpx;
-      background: #f5f5f5;
+      background: #fff;
       margin-right: 20rpx;
       border-radius: 10rpx;
       font-size: 28rpx;
       position: relative;
+      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+
+      &:active {
+        transform: translateY(2rpx);
+      }
 
       &:last-child {
         margin-right: 0;
@@ -278,8 +296,29 @@ const schools = [
   .school-list {
     .school-item {
       display: flex;
-      padding: 20rpx 0;
-      border-bottom: 2rpx solid #f5f5f5;
+      padding: 24rpx;
+      margin: 16rpx 0;
+      background: #f8fbff;
+      border-radius: 16rpx;
+      box-shadow: 0 4rpx 16rpx rgba(0, 102, 204, 0.12);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border: 2rpx solid #cce5ff;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 8rpx;
+        height: 100%;
+        background: linear-gradient(to bottom, #0066cc, #0099ff);
+      }
+
+      &:active {
+        transform: scale(0.98);
+      }
 
       .school-logo {
         width: 100rpx;
@@ -314,12 +353,14 @@ const schools = [
 
           .tag {
             padding: 4rpx 16rpx;
-            background: #f0f7ff;
-            color: #007aff;
+            background: linear-gradient(to bottom, #e6f2ff, #cce5ff);
+            color: #0066cc;
             border-radius: 20rpx;
             font-size: 24rpx;
             margin-right: 10rpx;
             margin-bottom: 10rpx;
+            border: 1rpx solid #b3d9ff;
+            box-shadow: 0 2rpx 6rpx rgba(0, 102, 204, 0.1);
           }
         }
       }
