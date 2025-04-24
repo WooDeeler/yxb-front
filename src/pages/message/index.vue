@@ -73,7 +73,7 @@ const messages = ref<MessageItem[]>([
     preview: "阁谈 : 同学们加油!",
   },
   {
-    avatar: "/static/gcard.svg",
+    avatar: "/static/gcard.png",
     name: "413复习打卡小组",
     time: "昨天",
     preview: "lihan : 今天打卡了吗?",
