@@ -7,6 +7,18 @@
       }
     },
     {
+      "path": "pages/qa/index",
+      "style": {
+        "navigationBarTitleText": "难题答疑"
+      }
+    },
+    {
+      "path": "pages/news/index",
+      "style": {
+        "navigationBarTitleText": "新闻资讯"
+      }
+    },
+    {
       "path": "pages/postDetail/index",
       "style": {
         "navigationBarTitleText": "动态详情"
@@ -46,6 +58,12 @@
       "path": "pages/lib/index",
       "style": {
         "navigationBarTitleText": "资源库"
+      }
+    },
+    {
+      "path": "pages/libDetail/index",
+      "style": {
+        "navigationBarTitleText": "资源详情页"
       }
     },
     {

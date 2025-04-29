@@ -11,8 +11,46 @@
       </view>
     </view>
 
-    <view class="article-content">
-      <text>{{ post.content }}</text>
+    <view class="content-container">
+      <view class="article-content">
+        <text>{{ post.content }}</text>
+      </view>
+
+      <view class="image-preview" v-if="post.images && post.images.length > 0">
+        <view class="image-grid">
+          <image
+            v-for="(img, index) in post.images"
+            :key="index"
+            :src="img"
+            mode="aspectFill"
+            class="preview-image"
+            @click="previewImage(index)"
+          />
+        </view>
+      </view>
+    </view>
+
+    <view class="comment-section">
+      <text class="section-title">评论区</text>
+
+      <view class="comment-list">
+        <view
+          class="comment-item"
+          v-for="(comment, index) in comments"
+          :key="index"
+        >
+          <image
+            class="comment-avatar"
+            :src="comment.avatar"
+            mode="aspectFill"
+          ></image>
+          <view class="comment-content">
+            <text class="comment-name">{{ comment.username }}</text>
+            <text class="comment-text">{{ comment.content }}</text>
+            <text class="comment-time">{{ comment.time }}</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view class="interaction-bar">
@@ -49,6 +87,14 @@ interface PostDetail {
   comments: number;
   likes: number;
   isLiked: boolean;
+  images?: string[];
+}
+
+interface Comment {
+  username: string;
+  avatar: string;
+  content: string;
+  time: string;
 }
 
 const post = ref<PostDetail>({
@@ -60,7 +106,23 @@ const post = ref<PostDetail>({
   comments: 0,
   likes: 0,
   isLiked: false,
+  images: [],
 });
+
+const comments = ref<Comment[]>([
+  {
+    username: "考研上岸",
+    avatar: "/static/logo.png",
+    content: "这个时间规划很合理，我也在这样安排",
+    time: "5分钟前",
+  },
+  {
+    username: "数学小王子",
+    avatar: "/static/logo.png",
+    content: "数学每天4小时会不会太少了？",
+    time: "15分钟前",
+  },
+]);
 
 onLoad((options) => {
   // 模拟获取帖子详情数据
@@ -74,14 +136,22 @@ onLoad((options) => {
     comments: 45,
     likes: 128,
     isLiked: false,
+    images: ["/static/posts/post-2.png", "/static/posts/post-3.png"],
   };
 });
+
+const previewImage = (index: number) => {
+  uni.previewImage({
+    current: index,
+    urls: post.value.images || [],
+  });
+};
 </script>
 
 <style lang="scss">
 .container {
   padding: 32rpx;
-  background-color: #fff;
+  background: linear-gradient(to bottom, #e6f2ff, #f5f5f5 200rpx);
 }
 
 .article-header {
@@ -107,6 +177,8 @@ onLoad((options) => {
     }
 
     .info {
+      display: flex;
+      flex-direction: column;
       .name {
         font-size: 28rpx;
         color: #333;
@@ -117,9 +189,17 @@ onLoad((options) => {
       .time {
         font-size: 24rpx;
         color: #999;
+        margin-top: 8rpx;
       }
     }
   }
+}
+
+.content-container {
+  margin-bottom: 40rpx;
+  background-color: #f9f9f9;
+  border-radius: 16rpx;
+  padding: 32rpx;
 }
 
 .article-content {
@@ -128,6 +208,82 @@ onLoad((options) => {
   line-height: 1.8;
   margin-bottom: 60rpx;
   white-space: pre-wrap;
+}
+
+.image-preview {
+  margin-bottom: 40rpx;
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16rpx;
+    padding: 0 32rpx;
+
+    .preview-image {
+      width: 100%;
+      height: 200rpx;
+      border-radius: 8rpx;
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+.comment-section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 120rpx;
+  margin-top: 20rpx;
+
+  .section-title {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 24rpx;
+    display: block;
+  }
+
+  .comment-list {
+    .comment-item {
+      display: flex;
+      margin-bottom: 32rpx;
+      padding-bottom: 32rpx;
+      border-bottom: 1rpx solid #f0f0f0;
+
+      .comment-avatar {
+        width: 64rpx;
+        height: 64rpx;
+        border-radius: 50%;
+        margin-right: 16rpx;
+      }
+
+      .comment-content {
+        flex: 1;
+
+        .comment-name {
+          font-size: 28rpx;
+          font-weight: 500;
+          color: #333;
+          margin-bottom: 8rpx;
+        }
+
+        .comment-text {
+          font-size: 28rpx;
+          color: #333;
+          line-height: 1.5;
+          margin-bottom: 8rpx;
+          display: block;
+        }
+
+        .comment-time {
+          font-size: 24rpx;
+          color: #999;
+          display: block;
+          margin-top: 8rpx;
+        }
+      }
+    }
+  }
 }
 
 .interaction-bar {
