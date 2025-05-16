@@ -42,7 +42,7 @@
     </view>
 
     <!-- 热门话题 -->
-    <view class="hot-topics">
+    <!-- <view class="hot-topics">
       <view class="section-title">
         <uni-icons type="fire" size="20" color="#ff0000" />
         <text>热门话题</text>
@@ -52,6 +52,17 @@
           #{{ tag }}
         </view>
       </view>
+    </view> -->
+    <view class="scrolling-announcement">
+      <scroll-view scroll-x="true" class="announcement-bar">
+        <view
+          class="announcement-item"
+          v-for="(announcement, index) in announcements"
+          :key="index"
+        >
+          {{ announcement }}
+        </view>
+      </scroll-view>
     </view>
     <view class="post-list">
       <view
@@ -133,6 +144,7 @@ interface Post {
   imageList?: string[];
   location: string;
   tags?: string[];
+  comments: 0;
 }
 
 const currentCategory = ref(0);
@@ -141,9 +153,14 @@ const page = ref(1);
 const size = ref(10);
 const hasMore = ref(true);
 
-const categories = ["推荐", "难题问答", "考研新闻"];
+const categories = ["推荐", "难题问答", "考研新闻", "资料下载"];
 
 const hotTopics = ["考研英语", "数学真题", "调剂信息", "院校选择"];
+
+const announcements = [
+  "🎉欢迎来到研习宝！",
+  "分享最新的考研经验和资料。",
+];
 
 const posts = ref<Post[]>([
   {
@@ -203,7 +220,7 @@ const posts = ref<Post[]>([
     isLiked: false,
     imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
     location: "北京",
-    tags: "政治"
+    tags: "政治",
   },
   {
     id: 5,
@@ -268,7 +285,7 @@ const loadPosts = async (isRefresh = false) => {
         updateTime: `${new Date().getFullYear()}-${String(
           new Date().getMonth() + 1
         ).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
-        comments: countComments(post.comments),
+        comments: post.comments,
       }));
     } else {
       newPosts = response.data.list.map((post) => ({
@@ -278,7 +295,7 @@ const loadPosts = async (isRefresh = false) => {
         ).padStart(2, "0")}-${String(
           new Date(post.updateTime).getDate()
         ).padStart(2, "0")}`,
-        comments: countComments(post.comments),
+        comments: post.comments,
       }));
     }
 
@@ -286,10 +303,6 @@ const loadPosts = async (isRefresh = false) => {
   } finally {
     loading.value = false;
   }
-};
-const countComments = (str: string) => {
-  if (!str) return 0;
-  return str.split(",").length;
 };
 
 // 下拉刷新
@@ -623,6 +636,32 @@ const toggleLike = (index: number) => {
 
   > view:first-child {
     flex-grow: 1;
+  }
+}
+.scrolling-announcement {
+  border: 1px solid #ccc;
+  padding: 5px;
+  box-shadow: 0 4rpx 8rpx rgba(221, 229, 175, 0.1);
+  background-color: #ccdee2;
+}
+.announcement-item {
+  display: inline-block;
+  font-size: 25rpx;
+  color: #0e0e01;
+}
+
+.announcement-bar {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: scroll-left 10s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
   }
 }
 </style>

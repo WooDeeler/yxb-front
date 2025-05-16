@@ -4,7 +4,7 @@ import { url } from "hexo/dist/hexo/default_config";
 // 创建axios实例
 const request = axios.create({
   baseURL: "http://127.0.0.1", // 替换为实际的API基础URL
-  timeout: 10000, // 请求超时时间
+  timeout: 30000, // 请求超时时间
   adapter: (config) => {
     return new Promise((resolve, reject) => {
       uni.request({
@@ -108,14 +108,9 @@ export const postApi = {
   },
 
   // 获取帖子详情
-  getPostDetail: (param) => {
-    return request({
-      url: port + "/post/detail",
-      method: "post",
-      data: param,
-    });
+  getPostDetail: (postId: number) => {
+    return request.post(port + `/post/detail?postId=${postId}`);
   },
-
   // 发布帖子
   createPost: (data) => {
     return request.post("/post/create", data);
@@ -139,6 +134,20 @@ export const postApi = {
     return request.delete(`/post/delete/${id}`);
   },
 };
+
+export const commentApi = {
+  // 查询评论信息
+  commentList: (postId: number) => {
+    return request.post(port + `/comment/comments?postId=${postId}`);
+  },
+  // 创建评论
+  createComment: (data) => {
+    return request.post(port + "/comment/createComment", data);
+  },
+  delete: (id: number) => {
+    return request.post(post + `/comment/delComment?id=${id}`)
+  },
+}
 
 // 用户相关API
 export const userApi = {
@@ -267,4 +276,5 @@ export default {
   postApi,
   authApi,
   userApi,
+  commentApi,
 };
