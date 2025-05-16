@@ -22,6 +22,11 @@
         <text>收藏</text>
         <uni-icons type="forward" size="16"></uni-icons>
       </view>
+      <view class="menu-item" @click="navigateTo('/pages/posts/index')">
+        <uni-icons type="home" size="20"></uni-icons>
+        <text>我的帖子</text>
+        <uni-icons type="forward" size="16"></uni-icons>
+      </view>
       <view class="menu-item" @click="navigateTo('/pages/about/index')">
         <uni-icons type="info" size="20"></uni-icons>
         <text>关于</text>
@@ -39,14 +44,15 @@ const navigateTo = (url: string) => {
 
 <style lang="scss">
 .container {
-  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
 
 .profile-header {
   display: flex;
   align-items: center;
   padding: 30rpx;
-  background-color: #fff;
   margin-bottom: 20rpx;
   position: relative;
 
@@ -83,14 +89,14 @@ const navigateTo = (url: string) => {
 }
 
 .menu-list {
-  background-color: #fff;
+  // background: linear-gradient(to bottom, #e6f2ff, #f5f5f5 1000rpx);
   margin-top: 20rpx;
 
   .menu-item {
     display: flex;
     align-items: center;
     padding: 30rpx;
-    border-bottom: 1rpx solid #eee;
+    border-bottom: 5rpx solid #eee;
 
     &:last-child {
       border-bottom: none;

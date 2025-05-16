@@ -65,56 +65,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { newsApi } from "@/api";
 
 const currentCategory = ref(0);
 const loading = ref(false);
+const newsList = ref<any[]>([]);
 
 const categories = ["全部", "考研政策", "院校动态", "调剂信息", "考研大纲"];
 
-const newsList = ref([
-  {
-    title: "2024年全国硕士研究生考试大纲公布",
-    summary:
-      "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
-    source: "教育部官网",
-    time: "2小时前",
-    image: "/static/posts/post-2.png",
-  },
-  {
-    title: "多所高校公布2024年硕士研究生招生计划",
-    summary:
-      "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
-    source: "中国教育在线",
-    time: "4小时前",
-    image: "/static/posts/post-3.png",
-  },
-  {
-    title: "2023年考研国家线公布，历年最低",
-    summary:
-      "2023年全国硕士研究生招生考试考生进入复试的初试成绩基本要求（国家线）公布...",
-    source: "人民日报",
-    time: "昨天",
-    image: "/static/posts/post-4.png",
-  },
-  {
-    title: "教育部：做好2024年全国硕士研究生考试疫情防控工作",
-    summary:
-      "教育部下发通知，要求各地各高校科学精准做好2024年全国硕士研究生考试疫情防控工作...",
-    source: "新华网",
-    time: "昨天",
-    image: "/static/posts/post-1.png",
-  },
-  {
-    title: "2024考研预报名系统将于9月开通",
-    summary:
-      "2024年全国硕士研究生考试预报名系统将于9月开通，考生可提前准备相关材料...",
-    source: "中国教育报",
-    time: "2天前",
-    image: "/static/posts/post-2.png",
-  },
-]);
+// 获取新闻列表数据
+const fetchNewsList = async (category?: string) => {
+  try {
+    loading.value = true;
+    const params: { category?: string; page?: number; pageSize?: number } = {
+      page: 1,
+      pageSize: 10,
+    };
+
+    // 如果选择了非全部分类，添加分类参数
+    if (category && category !== "全部") {
+      params.category = category;
+    }
+
+    const res = await newsApi.getNewsList(params);
+    newsList.value = res.data || [];
+  } catch (error) {
+    console.error("获取新闻列表失败:", error);
+    // 加载失败时显示默认数据
+    newsList.value = [
+      {
+        title: "2024年全国硕士研究生考试大纲公布",
+        summary:
+          "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
+        source: "教育部官网",
+        time: "2小时前",
+        image: "/static/posts/post-2.png",
+      },
+      {
+        title: "多所高校公布2024年硕士研究生招生计划",
+        summary:
+          "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
+        source: "中国教育在线",
+        time: "4小时前",
+        image: "/static/posts/post-3.png",
+      },
+    ];
+  } finally {
+    loading.value = false;
+  }
+};
 
 const router = useRouter();
 
@@ -123,13 +124,22 @@ const navigateToSearchPage = () => {
 };
 
 const navigateToNewsDetail = (news: any) => {
-  uni.navigateTo({ url: `/pages/postDetail/index` });
+  // 假设news对象中有id字段，如果没有可以使用其他唯一标识
+  const newsId = news.id || "default";
+  uni.navigateTo({ url: `/pages/postDetail/index?id=${newsId}` });
 };
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
-  // 这里可以根据分类筛选新闻
+  // 根据分类获取新闻
+  const category = categories[index];
+  fetchNewsList(category);
 };
+
+// 页面加载时获取新闻数据
+onMounted(() => {
+  fetchNewsList();
+});
 </script>
 
 <style lang="scss">
