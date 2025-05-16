@@ -138,7 +138,6 @@ export const postApi = {
   deletePost: (id: string) => {
     return request.delete(`/post/delete/${id}`);
   },
-
 };
 
 // 用户相关API

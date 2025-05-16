@@ -357,42 +357,42 @@ onLoad((options) => {
         margin-right: 16rpx;
       }
       .user-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex: 1;
-
-      .user-basic {
         display: flex;
-        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex: 1;
 
-        .username {
-          font-size: 28rpx;
-          font-weight: bold;
-          color: #333;
+        .user-basic {
+          display: flex;
+          flex-direction: column;
+
+          .username {
+            font-size: 28rpx;
+            font-weight: bold;
+            color: #333;
+          }
+
+          .university {
+            font-size: 24rpx;
+            color: #666;
+          }
         }
 
-        .university {
-          font-size: 24rpx;
-          color: #666;
+        .post-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8rpx;
+
+          .tag {
+            font-size: 20rpx;
+            color: #007aff;
+            background-color: rgba(0, 122, 255, 0.1);
+            padding: 4rpx 12rpx;
+            border-radius: 12rpx;
+            border: 1rpx solid rgba(0, 122, 255, 0.2);
+          }
         }
       }
-
-      .post-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8rpx;
-
-        .tag {
-          font-size: 20rpx;
-          color: #007aff;
-          background-color: rgba(0, 122, 255, 0.1);
-          padding: 4rpx 12rpx;
-          border-radius: 12rpx;
-          border: 1rpx solid rgba(0, 122, 255, 0.2);
-        }
-      }
-    }
     }
 
     .post-content {
