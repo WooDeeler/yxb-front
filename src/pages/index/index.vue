@@ -128,7 +128,12 @@
 <script setup lang="ts">
 import { ref, Text } from "vue";
 import { useRouter } from "vue-router";
-import { onShow, onLoad, onReachBottom } from "@dcloudio/uni-app";
+import {
+  onShow,
+  onLoad,
+  onReachBottom,
+  onPullDownRefresh,
+} from "@dcloudio/uni-app";
 import { postApi } from "@/api";
 
 interface Post {
@@ -151,7 +156,6 @@ const currentCategory = ref(0);
 const loading = ref(false);
 const page = ref(1);
 const size = ref(10);
-const hasMore = ref(true);
 
 const categories = ["推荐", "难题问答", "考研新闻", "资料下载"];
 
@@ -303,13 +307,11 @@ const loadPosts = async (isRefresh = false) => {
 };
 
 // 下拉刷新
-const onPullDownRefresh = async () => {
+onPullDownRefresh(() => {
   page.value = 1;
-  hasMore.value = true;
-  await loadPosts(true);
+  loadPosts(true);
   uni.stopPullDownRefresh();
-};
-
+});
 
 // 页面加载时获取数据
 onLoad(() => {

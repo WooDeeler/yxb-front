@@ -107,7 +107,8 @@
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "研习宝",
     "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "enablePullDownRefresh": true
   },
   "tabBar": {
     "color": "#000",
