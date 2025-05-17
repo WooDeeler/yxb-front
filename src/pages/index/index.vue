@@ -166,7 +166,7 @@ const announcements = ["🎉欢迎来到研习宝！", "分享最新的考研经
 const posts = ref<Post[]>([
   {
     id: 1,
-    avatar: "/static/ulogo/THU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
     username: "考研人加油",
     userUniversity: "清华大学",
     updateTime: "2024-01-20",
@@ -175,7 +175,10 @@ const posts = ref<Post[]>([
       "大家好，我是24考研备考的同学，这里分享一下我的复习计划和时间安排。数学每天4小时，英语2小时，专业课3小时...",
     likes: 128,
     isLiked: false,
-    imageList: ["/static/posts/post-2.png", "/static/posts/post-3.png"],
+    imageList: [
+      "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-2.png",
+      "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-3.png",
+    ],
     location: "北京",
     tags: "考研规划",
   },

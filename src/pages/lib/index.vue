@@ -109,7 +109,7 @@ const schools = [
   {
     id: 0,
     name: "华东交通大学",
-    logo: "/static/ulogo/ECJTU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
     location: "南昌市",
     type: "理工类",
     tags: ["省部共建"],
@@ -117,7 +117,7 @@ const schools = [
   {
     id: 1,
     name: "清华大学",
-    logo: "/static/ulogo/THU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
     location: "北京市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -125,7 +125,7 @@ const schools = [
   {
     id: 2,
     name: "北京大学",
-    logo: "/static/ulogo/PKU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
     location: "北京市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -133,7 +133,7 @@ const schools = [
   {
     id: 3,
     name: "浙江大学",
-    logo: "/static/ulogo/ZJU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ZJU.svg",
     location: "浙江省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -141,7 +141,7 @@ const schools = [
   {
     id: 4,
     name: "上海交通大学",
-    logo: "/static/ulogo/SJTU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/SJTU.svg",
     location: "上海市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -149,7 +149,7 @@ const schools = [
   {
     id: 5,
     name: "南京大学",
-    logo: "/static/ulogo/NJU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
     location: "江苏省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -157,7 +157,7 @@ const schools = [
   {
     id: 6,
     name: "复旦大学",
-    logo: "/static/ulogo/FDU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
     location: "上海市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -165,7 +165,7 @@ const schools = [
   {
     id: 7,
     name: "中国科学技术大学",
-    logo: "/static/ulogo/USTC.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/USTC.svg",
     location: "安徽省",
     type: "理工类",
     tags: ["985", "211", "双一流", "中国科学院直属"],
@@ -173,7 +173,7 @@ const schools = [
   {
     id: 8,
     name: "华中科技大学",
-    logo: "/static/ulogo/HUST.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/HUST.svg",
     location: "湖北省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -181,7 +181,7 @@ const schools = [
   {
     id: 9,
     name: "武汉大学",
-    logo: "/static/ulogo/WHU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/WHU.svg",
     location: "湖北省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
@@ -189,7 +189,7 @@ const schools = [
   {
     id: 10,
     name: "西安交通大学",
-    logo: "/static/ulogo/XJTU.svg",
+    logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/XJTU.svg",
     location: "陕西省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],

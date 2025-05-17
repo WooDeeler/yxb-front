@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <view class="profile-header">
-      <image class="avatar" src="/static/myav.svg" mode="aspectFill"></image>
+      <image class="avatar" src="https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg" mode="aspectFill"></image>
       <view class="user-info">
         <text class="username">一研为定</text>
         <text class="bio">UID: 123456</text>

@@ -93,7 +93,7 @@ const categories = ["全部", "数学", "英语", "政治", "专业课"];
 
 const questions = ref([
   {
-    avatar: "/static/myav.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
     username: "考研小白",
     time: "10分钟前",
     title: "高数中的泰勒公式如何理解和运用？",
@@ -103,7 +103,7 @@ const questions = ref([
     likes: 128,
   },
   {
-    avatar: "/static/ulogo/PKU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
     username: "英语达人",
     time: "30分钟前",
     title: "考研英语长难句如何破解？",
@@ -112,7 +112,7 @@ const questions = ref([
     likes: 256,
   },
   {
-    avatar: "/static/ulogo/FDU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
     username: "政治思考者",
     time: "1小时前",
     title: "如何理解马克思主义政治经济学的基本原理？",

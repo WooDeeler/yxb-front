@@ -73,21 +73,21 @@ const currentCategory = ref(0);
 const loading = ref(false);
 const newsList = ref<News[]>([
   {
-        title: "2024年全国硕士研究生考试大纲公布",
-        content:
-          "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
-        publishSource: "教育部官网",
-        publishTime: "2小时前",
-        images: "/static/posts/post-2.png",
-      },
-      {
-        title: "多所高校公布2024年硕士研究生招生计划",
-        content:
-          "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
-        publishSource: "中国教育在线",
-        publishTime: "4小时前",
-        images: "/static/posts/post-3.png",
-      },
+    title: "2024年全国硕士研究生考试大纲公布",
+    content:
+      "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
+    publishSource: "教育部官网",
+    publishTime: "2小时前",
+    images: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-2.png",
+  },
+  {
+    title: "多所高校公布2024年硕士研究生招生计划",
+    content:
+      "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
+    publishSource: "中国教育在线",
+    publishTime: "4小时前",
+    images: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-3.png",
+  },
 ]);
 
 interface News {
@@ -106,7 +106,12 @@ const categories = ["全部", "考研政策", "院校动态", "调剂信息", "�
 const fetchNewsList = async (titles?: string, theme?: string) => {
   try {
     loading.value = true;
-    const params: { titles?: string; theme?: string; page?: number; size?: number } = {
+    const params: {
+      titles?: string;
+      theme?: string;
+      page?: number;
+      size?: number;
+    } = {
       page: 1,
       size: 10,
       title: titles,
@@ -115,12 +120,10 @@ const fetchNewsList = async (titles?: string, theme?: string) => {
     let news = [];
     const res = await newsApi.searchNews(params);
     news = res.data.list.map((n) => ({
-        ...n,
-        publishTime: new Date(n.publishTime)
-        .toISOString()
-        .split("T")[0],
-      }));
-      newsList.value = news;
+      ...n,
+      publishTime: new Date(n.publishTime).toISOString().split("T")[0],
+    }));
+    newsList.value = news;
   } catch (error) {
     console.error("获取新闻列表失败:", error);
   } finally {
@@ -131,7 +134,7 @@ const fetchNewsList = async (titles?: string, theme?: string) => {
 const router = useRouter();
 
 const navigateToSearchPage = () => {
-  fetchNewsList("政策")
+  fetchNewsList("政策");
 };
 
 const navigateToNewsDetail = (news: any) => {
@@ -147,7 +150,7 @@ const handleCategoryClick = (index: number) => {
     fetchNewsList();
     return;
   }
-  fetchNewsList("",category);
+  fetchNewsList("", category);
 };
 
 // 页面加载时获取新闻数据

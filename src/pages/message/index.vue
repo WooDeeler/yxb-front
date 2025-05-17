@@ -67,13 +67,13 @@ interface MessageItem {
 
 const messages = ref<MessageItem[]>([
   {
-    avatar: "/static/ulogo/ECJTU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
     name: "华东交通大学备考群",
     time: "12:30",
     preview: "阁谈 : 同学们加油!",
   },
   {
-    avatar: "/static/gcard.png",
+    avatar: "/static/logo.png",
     name: "413复习打卡小组",
     time: "昨天",
     preview: "lihan : 今天打卡了吗?",

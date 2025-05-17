@@ -52,21 +52,21 @@ interface ChatMessage {
 
 const messages = ref<ChatMessage[]>([
   {
-    avatar: "/static/ulogo/THU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
     name: "考研学长",
     content: "大家好，我是去年考上清华的学长，欢迎大家交流考研经验！",
     time: "10:00",
     isSelf: false,
   },
   {
-    avatar: "/static/ulogo/PKU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
     name: "考研小白",
     content: "学长好！想请教一下数学复习有什么好的方法吗？",
     time: "10:01",
     isSelf: false,
   },
   {
-    avatar: "/static/ulogo/THU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
     name: "考研学长",
     content:
       "数学复习建议：1. 先把基础知识打牢，认真过一遍课本 2. 多做题，特别是历年真题 3. 总结错题，建立知识体系",
@@ -74,7 +74,7 @@ const messages = ref<ChatMessage[]>([
     isSelf: false,
   },
   {
-    avatar: "/static/ulogo/FDU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
     name: "资料分享者",
     content:
       "我整理了一份考研资料合集，包括各科复习重点、真题解析等，需要的可以私信我",
@@ -82,35 +82,35 @@ const messages = ref<ChatMessage[]>([
     isSelf: false,
   },
   {
-    avatar: "/static/myav.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
     name: "考研人",
     content: "最近在准备英语，大家有什么推荐的背单词APP吗？",
     time: "10:15",
     isSelf: false,
   },
   {
-    avatar: "/static/ulogo/USTC.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/USTC.svg",
     name: "考研答疑",
     content: "政治复习建议：1. 先过一遍大纲解析 2. 做1000题 3. 最后背肖四肖八",
     time: "10:20",
     isSelf: false,
   },
   {
-    avatar: "/static/myav.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
     name: "考研人",
     content: "请问计算机专业，北航和北邮哪个更好考一些？",
     time: "10:25",
     isSelf: false,
   },
   {
-    avatar: "/static/ulogo/NJU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
     name: "考研学姐",
     content: "北邮计算机竞争更激烈但就业好，北航相对容易些但复试要求高",
     time: "10:30",
     isSelf: false,
   },
   {
-    avatar: "/static/gcard.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
     name: "考研打卡",
     content: "今天完成了数学3小时，英语2小时，政治1小时，专业课2小时",
     time: "10:35",
@@ -161,7 +161,8 @@ const sendMessage = () => {
   if (inputMessage.value.trim()) {
     const content = inputMessage.value.slice(0, 100); // 限制消息长度为100
     messages.value.push({
-      avatar: "/static/ulogo/ECJTU.svg",
+      avatar:
+        "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
       name: "我",
       content: content,
       time: new Date().toLocaleTimeString("zh-CN", {

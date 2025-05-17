@@ -112,7 +112,7 @@ const categories = ["全部", "社科", "理科", "工科", "艺术", "体育"];
 const university = ref({
   name: "华东交通大学",
   motto: "日新其德，止于至善",
-  logo: "/static/ulogo/ECJTU.svg",
+  logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
   location: "江西省南昌市",
   level: "本科",
   website: "www.ecjtu.edu.cn",
