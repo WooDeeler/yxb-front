@@ -157,10 +157,7 @@ const categories = ["推荐", "难题问答", "考研新闻", "资料下载"];
 
 const hotTopics = ["考研英语", "数学真题", "调剂信息", "院校选择"];
 
-const announcements = [
-  "🎉欢迎来到研习宝！",
-  "分享最新的考研经验和资料。",
-];
+const announcements = ["🎉欢迎来到研习宝！", "分享最新的考研经验和资料。"];
 
 const posts = ref<Post[]>([
   {
@@ -639,21 +636,31 @@ const toggleLike = (index: number) => {
   }
 }
 .scrolling-announcement {
-  border: 1px solid #ccc;
-  padding: 5px;
-  box-shadow: 0 4rpx 8rpx rgba(221, 229, 175, 0.1);
-  background-color: #ccdee2;
+  background-color: rgba(
+    230,
+    247,
+    255,
+    0.9
+  ); /* Light blue, slightly transparent */
+  border: 1px solid #b3e5fc; /* Softer border color */
+  border-radius: 12rpx; /* Rounded corners */
+  padding: 12rpx 20rpx; /* Adjusted padding */
+  margin: 0 20rpx 20rpx 20rpx; /* Align with post-list and add bottom margin */
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  overflow: hidden; /* Ensure content respects border-radius */
 }
+
 .announcement-item {
   display: inline-block;
-  font-size: 25rpx;
-  color: #0e0e01;
+  font-size: 26rpx; /* Slightly larger font */
+  color: #0284c7; /* Darker blue for better contrast and theme alignment */
+  padding-right: 50rpx; /* Add some spacing between repeated items if they are close */
 }
 
 .announcement-bar {
-  overflow: hidden;
+  /* overflow: hidden; // Already handled by scrolling-announcement */
   white-space: nowrap;
-  animation: scroll-left 10s linear infinite;
+  animation: scroll-left 15s linear infinite; /* Slightly slower animation */
 }
 
 @keyframes scroll-left {
@@ -661,7 +668,7 @@ const toggleLike = (index: number) => {
     transform: translateX(100%);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-100%); /* Ensure it scrolls completely out */
   }
 }
 </style>

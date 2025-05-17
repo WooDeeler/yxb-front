@@ -47,15 +47,15 @@
       >
         <view class="news-content">
           <text class="title">{{ news.title }}</text>
-          <text class="summary">{{ news.summary }}</text>
+          <text class="summary">{{ news.content }}</text>
           <view class="news-footer">
-            <view class="source">{{ news.source }}</view>
-            <text class="time">{{ news.time }}</text>
+            <view class="source">{{ news.publishSource }}</view>
+            <text class="time">{{ news.publishTime }}</text>
           </view>
         </view>
         <image
-          v-if="news.image"
-          :src="news.image"
+          v-if="news.images"
+          :src="news.images"
           mode="aspectFill"
           class="news-image"
         />
@@ -71,47 +71,58 @@ import { newsApi } from "@/api";
 
 const currentCategory = ref(0);
 const loading = ref(false);
-const newsList = ref<any[]>([]);
+const newsList = ref<News[]>([
+  {
+        title: "2024年全国硕士研究生考试大纲公布",
+        content:
+          "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
+        publishSource: "教育部官网",
+        publishTime: "2小时前",
+        images: "/static/posts/post-2.png",
+      },
+      {
+        title: "多所高校公布2024年硕士研究生招生计划",
+        content:
+          "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
+        publishSource: "中国教育在线",
+        publishTime: "4小时前",
+        images: "/static/posts/post-3.png",
+      },
+]);
+
+interface News {
+  title: string;
+  content: string;
+  publishSource: string;
+  publishTime: string;
+  images: string;
+  relatedUniversity: string;
+  tags: string;
+}
 
 const categories = ["全部", "考研政策", "院校动态", "调剂信息", "考研大纲"];
 
 // 获取新闻列表数据
-const fetchNewsList = async (category?: string) => {
+const fetchNewsList = async (titles?: string, theme?: string) => {
   try {
     loading.value = true;
-    const params: { category?: string; page?: number; pageSize?: number } = {
+    const params: { titles?: string; theme?: string; page?: number; size?: number } = {
       page: 1,
-      pageSize: 10,
+      size: 10,
+      title: titles,
+      theme: theme,
     };
-
-    // 如果选择了非全部分类，添加分类参数
-    if (category && category !== "全部") {
-      params.category = category;
-    }
-
-    const res = await newsApi.getNewsList(params);
-    newsList.value = res.data || [];
+    let news = [];
+    const res = await newsApi.searchNews(params);
+    news = res.data.list.map((n) => ({
+        ...n,
+        publishTime: new Date(n.publishTime)
+        .toISOString()
+        .split("T")[0],
+      }));
+      newsList.value = news;
   } catch (error) {
     console.error("获取新闻列表失败:", error);
-    // 加载失败时显示默认数据
-    newsList.value = [
-      {
-        title: "2024年全国硕士研究生考试大纲公布",
-        summary:
-          "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
-        source: "教育部官网",
-        time: "2小时前",
-        image: "/static/posts/post-2.png",
-      },
-      {
-        title: "多所高校公布2024年硕士研究生招生计划",
-        summary:
-          "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
-        source: "中国教育在线",
-        time: "4小时前",
-        image: "/static/posts/post-3.png",
-      },
-    ];
   } finally {
     loading.value = false;
   }
@@ -120,20 +131,23 @@ const fetchNewsList = async (category?: string) => {
 const router = useRouter();
 
 const navigateToSearchPage = () => {
-  uni.navigateTo({ url: "/pages/searchPage/index" });
+  fetchNewsList("政策")
 };
 
 const navigateToNewsDetail = (news: any) => {
-  // 假设news对象中有id字段，如果没有可以使用其他唯一标识
-  const newsId = news.id || "default";
-  uni.navigateTo({ url: `/pages/postDetail/index?id=${newsId}` });
+  const newsId = news.id || "1";
+  uni.navigateTo({ url: `/pages/newsDetail/index?id=${newsId}` });
 };
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
   // 根据分类获取新闻
   const category = categories[index];
-  fetchNewsList(category);
+  if (category === "全部") {
+    fetchNewsList();
+    return;
+  }
+  fetchNewsList("",category);
 };
 
 // 页面加载时获取新闻数据

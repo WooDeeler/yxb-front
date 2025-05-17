@@ -65,29 +65,25 @@ request.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+let port = ":8791";
 
 // 新闻相关API
 export const newsApi = {
   // 获取新闻列表
-  getNewsList: (params: {
-    category?: string;
-    page?: number;
-    pageSize?: number;
-  }) => {
-    return request.get("/news/list", { params });
+  getNewsList: (data) => {
+    return request.post(port + "/news/list", data);
   },
 
   // 获取新闻详情
-  getNewsDetail: (id: string) => {
-    return request.get(`/news/detail/${id}`);
+  getNewsDetail: (id: number) => {
+    return request.post(port + `/news/detail?id=${id}`);
   },
 
   // 搜索新闻
-  searchNews: (keyword: string) => {
-    return request.get("/news/search", { params: { keyword } });
+  searchNews: (data) => {
+    return request.post(port + "/news/cond", data);
   },
 };
-let port = ":8791";
 // 帖子相关API
 export const postApi = {
   // 获取帖子列表
@@ -113,25 +109,17 @@ export const postApi = {
   },
   // 发布帖子
   createPost: (data) => {
-    return request.post("/post/create", data);
+    return request.post(port + "/post/create", data);
   },
 
   // 更新帖子
-  updatePost: (
-    id: string,
-    data: {
-      title?: string;
-      content?: string;
-      category?: string;
-      images?: string[];
-    }
-  ) => {
-    return request.put(`/post/update/${id}`, data);
+  updatePost: (data) => {
+    return request.post(port + "/post/update", data);
   },
 
   // 删除帖子
-  deletePost: (id: string) => {
-    return request.delete(`/post/delete/${id}`);
+  deletePost: (id: number) => {
+    return request.post(port + `/post/delete?id=${id}`);
   },
 };
 
@@ -147,6 +135,41 @@ export const commentApi = {
   delete: (id: number) => {
     return request.post(post + `/comment/delComment?id=${id}`)
   },
+}
+let port2 = ":8691";
+
+// 文件相关api
+export const fileApi = {
+  upload: (file) => {
+    return new Promise((resolve, reject) => {
+      wx.uploadFile({
+        url: 'http://127.0.0.1:8691/oss/upload',
+        filePath: file,
+        name: 'file',
+        success: (res) => {
+          if (res.statusCode === 200) {
+            resolve(JSON.parse(res.data));
+          } else {
+            reject(new Error('上传失败'));
+          }
+        },
+        fail: (err) => {
+          reject(err);
+        }
+      });
+    });
+  },
+  download: (fileName) => request({
+    url: port2 + '/oss/download',
+    method: 'get',
+    params: { fileName },
+    responseType: 'blob'
+  }),
+  query: (data) => request({
+    url: port2 + '/study/query',
+    method: 'post',
+    data
+  })
 }
 
 // 用户相关API
@@ -271,10 +294,12 @@ export const authApi = {
   },
 };
 
+
 export default {
   newsApi,
   postApi,
   authApi,
   userApi,
   commentApi,
+  fileApi,
 };

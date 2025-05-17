@@ -89,6 +89,12 @@
       "style": {
         "navigationBarTitleText": "收藏"
       }
+    },
+    {
+      "path": "pages/newsDetail/index",
+      "style": {
+        "navigationBarTitleText": "新闻详情"
+      }
     }
   ],
   "globalStyle": {
