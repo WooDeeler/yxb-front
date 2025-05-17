@@ -310,12 +310,6 @@ const onPullDownRefresh = async () => {
   uni.stopPullDownRefresh();
 };
 
-// 触底加载更多
-onReachBottom(() => {
-  if (!loading.value) {
-    loadPosts();
-  }
-});
 
 // 页面加载时获取数据
 onLoad(() => {
@@ -325,8 +319,12 @@ onLoad(() => {
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
   if (index !== 0) {
-    // 如果不是推荐分类
-    const categoryPages = ["", "/pages/qa/index", "/pages/news/index"];
+    const categoryPages = [
+      "",
+      "/pages/qa/index",
+      "/pages/news/index",
+      "/pages/study/index",
+    ];
     uni.navigateTo({
       url: categoryPages[index],
     });

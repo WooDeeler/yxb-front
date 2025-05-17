@@ -95,6 +95,12 @@
       "style": {
         "navigationBarTitleText": "新闻详情"
       }
+    },
+    {
+      "path": "pages/study/index",
+      "style": {
+        "navigationBarTitleText": "资料下载"
+      }
     }
   ],
   "globalStyle": {

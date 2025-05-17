@@ -1,9 +1,11 @@
 import axios from "axios";
 import { url } from "hexo/dist/hexo/default_config";
+const baseURL = "http://119.29.191.232";
+// const baseURL = "http://127.0.0.1";
 
 // 创建axios实例
 const request = axios.create({
-  baseURL: "http://127.0.0.1", // 替换为实际的API基础URL
+  baseURL: baseURL,
   timeout: 30000, // 请求超时时间
   adapter: (config) => {
     return new Promise((resolve, reject) => {
@@ -133,9 +135,9 @@ export const commentApi = {
     return request.post(port + "/comment/createComment", data);
   },
   delete: (id: number) => {
-    return request.post(post + `/comment/delComment?id=${id}`)
+    return request.post(post + `/comment/delComment?id=${id}`);
   },
-}
+};
 let port2 = ":8691";
 
 // 文件相关api
@@ -143,34 +145,37 @@ export const fileApi = {
   upload: (file) => {
     return new Promise((resolve, reject) => {
       wx.uploadFile({
-        url: 'http://127.0.0.1:8691/oss/upload',
+        url: baseURL + port2 + "/oss/upload",
         filePath: file,
-        name: 'file',
+        name: "file",
         success: (res) => {
           if (res.statusCode === 200) {
             resolve(JSON.parse(res.data));
           } else {
-            reject(new Error('上传失败'));
+            reject(new Error("上传失败"));
           }
         },
         fail: (err) => {
           reject(err);
-        }
+        },
       });
     });
   },
-  download: (fileName) => request({
-    url: port2 + '/oss/download',
-    method: 'get',
-    params: { fileName },
-    responseType: 'blob'
-  }),
-  query: (data) => request({
-    url: port2 + '/study/query',
-    method: 'post',
-    data
-  })
-}
+  download: (fileName) =>
+    request({
+      url: port2 + "/oss/download",
+      method: "get",
+      params: { fileName },
+      responseType: "blob",
+    }),
+};
+
+export const studyApi = {
+  // 查询学习资源
+  query: (data) => {
+    return request.post(port2 + "/study/query", data);
+  },
+};
 
 // 用户相关API
 export const userApi = {
@@ -294,7 +299,6 @@ export const authApi = {
   },
 };
 
-
 export default {
   newsApi,
   postApi,
@@ -302,4 +306,5 @@ export default {
   userApi,
   commentApi,
   fileApi,
+  studyApi,
 };

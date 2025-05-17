@@ -101,10 +101,9 @@ const handleTypeSelect = (type: string) => {
   showTypeDropdown.value = false;
 };
 
-
 const navigateToLibDetail = (schoolId: number) => {
   uni.navigateTo({ url: `/pages/libDetail/index` });
-}
+};
 
 const schools = [
   {
