@@ -16,27 +16,23 @@
       <!-- 院校基本信息 -->
       <view class="university-card">
         <view class="university-header">
-          <image class="university-logo" :src="university.logo" />
+          <image class="university-logo" :src="university.badge" />
           <view class="university-info">
-            <text class="university-name"
-              >{{ university.name
-              }}<text class="university-tag">{{ university.tag }}</text></text
-            >
-            <text class="university-motto">{{ university.motto }}</text>
+            <text class="university-name">{{ university.name }}</text>
+            <!-- <text class="university-tag">{{ university.tags }}</text> -->
+          </view>
+          <view class="school-tags">
+            <text class="tag">{{ university.tags[0] || "" }}</text>
           </view>
         </view>
         <view class="university-details">
           <view class="detail-item">
             <uni-icons type="location" size="16" color="#007aff" />
-            <text>{{ university.location }}</text>
+            <text>{{ university.city }}</text>
           </view>
           <view class="detail-item">
             <uni-icons type="star" size="16" color="#007aff" />
-            <text>{{ university.level }}</text>
-          </view>
-          <view class="detail-item">
-            <uni-icons type="home" size="16" color="#007aff" />
-            <text>{{ university.website }}</text>
+            <text>{{ university.type }}</text>
           </view>
         </view>
       </view>
@@ -44,9 +40,7 @@
       <!-- 院校详细介绍 -->
       <view class="university-description">
         <text class="description-title">院校介绍</text>
-        <text class="description-content"
-          >华东交通大学是一所以工为主，经、管、文、理、法、教育、艺术等多学科协调发展，以交通为特色、轨道为核心的教学研究型大学。学校创建于1971年，原隶属铁道部，2000年转制为"中央与地方共建，以地方管理为主"，是国家"中西部高校基础能力建设工程"高校，江西省重点加强建设高校。</text
-        >
+        <text class="description-content">{{ university.introduction }}</text>
       </view>
 
       <!-- 专业分类栏 -->
@@ -83,10 +77,10 @@
           <text>国家线</text>
         </view>
         <view class="table-row" v-for="(score, index) in scores" :key="index">
-          <text>{{ score.year }}</text>
-          <text>{{ score.major }}</text>
-          <text>{{ score.minScore }}</text>
-          <text>{{ score.rank }}</text>
+          <text>{{ score.years }}</text>
+          <text>{{ score.majorName }}</text>
+          <text>{{ score.score }}</text>
+          <text>{{ score.countryScore }}</text>
         </view>
       </view>
     </view>
@@ -95,7 +89,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
+import { majorApi, schoolApi } from "@/api";
+import { page } from "hexo/dist/plugins/helper/is";
 
 const currentCategory = ref(0);
 const loading = ref(false);
@@ -107,94 +103,102 @@ const yearOptions = ref([
   { value: "2021", text: "2021年" },
 ]);
 
-const categories = ["全部", "社科", "理科", "工科", "艺术", "体育"];
+const categories = ref(["全部", "文史", "理科", "工科", "艺术", "体育"]);
 
-const university = ref({
+interface Univ {
+  id: number;
+  name: string;
+  majorInfo: string[];
+  type: string;
+  introduction: string;
+  city: string;
+  badge: string;
+  tags: string[];
+}
+
+interface Major {
+  id: number;
+  universityId: number;
+  universityName: string;
+  majorName: string;
+  years: string;
+  type: number;
+  score: number;
+  countryScore: number;
+}
+
+const university = ref<Univ>({
   name: "华东交通大学",
-  motto: "日新其德，止于至善",
-  logo: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
-  location: "江西省南昌市",
-  level: "本科",
-  website: "www.ecjtu.edu.cn",
-  tag: "省部共建",
+  majorInfo: ["全部", "文史", "理科", "工科", "艺术", "体育"],
+  badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
+  city: "江西省南昌市",
+  type: "本科",
+  tags: ["省部共建"],
+  introduction: `华东交通大学是一所以工为主，经、管、文、理、法、教育、艺术等多学科协调发展，以交通为特色、轨道为核心的教学研究型大学。学校创建于1971年，原隶属铁道部，2000年转制为"中央与地方共建，以地方管理为主"，是国家"中西部高校基础能力建设工程"高校，江西省重点加强建设高校。`,
 });
 
-const scores = ref([
+const scores = ref<Major>([
   {
-    year: "2023",
-    major: "计算机科学与技术",
-    minScore: "350",
-    rank: "120",
+    years: "2023",
+    majorName: "计算机科学与技术",
+    score: 350,
+    countryScore: 120,
   },
   {
-    year: "2023",
-    major: "电气工程",
-    minScore: "340",
-    rank: "150",
+    years: "2023",
+    majorName: "电气工程",
+    score: 340,
+    countryScore: 150,
   },
   {
-    year: "2023",
-    major: "土木工程",
-    minScore: "330",
-    rank: "180",
+    years: "2023",
+    majorName: "土木工程",
+    score: 330,
+    countryScore: 180,
   },
   {
-    year: "2023",
-    major: "经济学",
-    minScore: "360",
-    rank: "110",
+    years: "2023",
+    majorName: "经济学",
+    score: 360,
+    countryScore: 110,
   },
   {
-    year: "2022",
-    major: "计算机科学与技术",
-    minScore: "345",
-    rank: "125",
+    years: "2022",
+    majorName: "计算机科学与技术",
+    score: 345,
+    countryScore: 125,
   },
   {
-    year: "2022",
-    major: "电气工程",
-    minScore: "335",
-    rank: "155",
+    years: "2022",
+    majorName: "电气工程",
+    score: 335,
+    countryScore: 155,
   },
   {
-    year: "2022",
-    major: "机械工程",
-    minScore: "325",
-    rank: "190",
+    years: "2022",
+    majorName: "机械工程",
+    score: 325,
+    countryScore: 190,
   },
   {
-    year: "2022",
-    major: "金融学",
-    minScore: "355",
-    rank: "115",
+    years: 2022,
+    majorName: "金融学",
+    score: 355,
+    countryScore: 115,
   },
   {
-    year: "2021",
-    major: "计算机科学与技术",
-    minScore: "340",
-    rank: "130",
+    years: "2021",
+    majorName: "计算机科学与技术",
+    score: 340,
+    countryScore: 130,
   },
   {
-    year: "2021",
-    major: "电气工程",
-    minScore: "560",
-    rank: "160",
-  },
-  {
-    year: "2021",
-    major: "建筑学",
-    minScore: "550",
-    rank: "200",
-  },
-  {
-    year: "2021",
-    major: "会计学",
-    minScore: "580",
-    rank: "120",
+    years: "2021",
+    majorName: "电气工程",
+    score: 360,
+    countryScore: 160,
   },
 ]);
-
-const router = useRouter();
 
 const navigateToSearchPage = () => {
   uni.navigateTo({ url: "/pages/searchPage/index" });
@@ -202,11 +206,84 @@ const navigateToSearchPage = () => {
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
+  getMajor();
 };
 
 const handleYearChange = (value: string) => {
   selectedYear.value = value;
+  getMajor();
 };
+
+const getDetail = async (id: string) => {
+  try {
+    const res = await schoolApi.getDetail(id);
+    if (res.data) {
+      university.value = {
+        ...res.data,
+        tags: splitStr(res.data.tags),
+        majorInfo: splitStr(res.data.majorInfo),
+      };
+      // categories.value = ["全部", ...university.value.majorInfo];
+      // console.log(categories + " " + university.value.majorInfo);
+    } else {
+      uni.showToast({
+        title: "获取详情失败，请检查网络",
+        icon: "none",
+      });
+    }
+  } catch (error) {
+    console.error("获取数据失败:", error);
+  }
+};
+
+const getMajor = async () => {
+  try {
+    const res = await majorApi.condQuery({
+      univName: university.value.name,
+      type: currentCategory.value === 0 ? "" : currentCategory.value,
+      years: selectedYear.value,
+      page:1,
+      size:200,
+    });
+    if (res.data.total !== null) {
+      scores.value = res.data.list.map((item: any) => ({
+        years: item.years,
+        majorName: item.majorName,
+        score: item.score,
+        countryScore: item.countryScore,
+      }));
+    } else {
+      uni.showToast({
+        title: "未查询到数据",
+        icon: "none",
+      })
+    }
+  }catch (e) {
+    console.error("获取数据失败:", e);
+  }
+}
+
+const splitStr = (str: string): string[] => {
+  if (!str) return [];
+  let result = [];
+  if (str.includes(",")) {
+    result = str.split(",");
+  } else if (str.includes("、")) {
+    result = str.split("、");
+  } else {
+    // 如果字符串不包含逗号或顿号，但又不为空，则将其视为单个元素的数组
+    result = [str];
+  }
+  // 过滤掉可能存在的空字符串元素
+  return result.filter((item) => item.trim() !== "");
+};
+
+onLoad(async (options) => {
+  if (options && options.id) {
+    await getDetail(options.id as string);
+    await getMajor();
+  }
+});
 </script>
 
 <style lang="scss">
@@ -290,6 +367,22 @@ const handleYearChange = (value: string) => {
         font-size: 24rpx;
         color: #666;
         display: block;
+      }
+    }
+    .school-tags {
+      display: flex;
+      flex-wrap: wrap;
+
+      .tag {
+        padding: 4rpx 16rpx;
+        background: linear-gradient(to bottom, #e6f2ff, #cce5ff);
+        color: #0066cc;
+        border-radius: 20rpx;
+        font-size: 24rpx;
+        margin-right: 10rpx;
+        margin-bottom: 10rpx;
+        border: 1rpx solid #b3d9ff;
+        box-shadow: 0 2rpx 6rpx rgba(0, 102, 204, 0.1);
       }
     }
   }
@@ -385,7 +478,7 @@ const handleYearChange = (value: string) => {
   padding: 16rpx;
   margin: 10rpx 20rpx;
   box-shadow: 0 4rpx 16rpx rgba(31, 45, 61, 0.1);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .year-select {

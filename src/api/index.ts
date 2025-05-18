@@ -177,6 +177,22 @@ export const studyApi = {
   },
 };
 
+// 院校接口
+export const schoolApi = {
+  condQuery: (data) => {
+    return request.post(port2 + "/univ/condQuery", data);
+  },
+  getDetail: (id: number) => {
+    return request.post(port2 + `/univ/getById?id=${id}`);
+  },
+};
+
+export const majorApi = {
+  condQuery: (data) => {
+    return request.post(port2 + "/major/condQuery", data);
+  }
+}
+
 // 用户相关API
 export const userApi = {
   // 获取用户详细信息
@@ -307,4 +323,5 @@ export default {
   commentApi,
   fileApi,
   studyApi,
+  schoolApi,
 };

@@ -14,11 +14,13 @@
 
     <view class="header-section">
       <view class="nav-bar">
-        <view @click="navigateToSearchPage">
+        <view>
           <uni-search-bar
             placeholder="搜索考研新闻资讯"
             radius="40"
             clearButton="auto"
+            @confirm="onSearch"
+            @input="onInput"
           />
         </view>
       </view>
@@ -65,11 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from "vue";
 import { newsApi } from "@/api";
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 
 const currentCategory = ref(0);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const title = ref("");
+const theme = ref("");
 const loading = ref(false);
 const newsList = ref<News[]>([
   {
@@ -103,38 +109,32 @@ interface News {
 const categories = ["全部", "考研政策", "院校动态", "调剂信息", "考研大纲"];
 
 // 获取新闻列表数据
-const fetchNewsList = async (titles?: string, theme?: string) => {
+const fetchNewsList = async (isRefresh = false) => {
   try {
     loading.value = true;
+    let news = [];
     const params: {
       titles?: string;
       theme?: string;
       page?: number;
       size?: number;
     } = {
-      page: 1,
-      size: 10,
-      title: titles,
-      theme: theme,
+      page: isRefresh ? 1 : currentPage.value++,
+      size: pageSize.value,
+      title: title.value,
+      theme: theme.value,
     };
-    let news = [];
     const res = await newsApi.searchNews(params);
     news = res.data.list.map((n) => ({
       ...n,
       publishTime: new Date(n.publishTime).toISOString().split("T")[0],
     }));
-    newsList.value = news;
+    newsList.value = isRefresh ? news : [...newsList.value, ...news];
   } catch (error) {
     console.error("获取新闻列表失败:", error);
   } finally {
     loading.value = false;
   }
-};
-
-const router = useRouter();
-
-const navigateToSearchPage = () => {
-  fetchNewsList("政策");
 };
 
 const navigateToNewsDetail = (news: any) => {
@@ -147,15 +147,31 @@ const handleCategoryClick = (index: number) => {
   // 根据分类获取新闻
   const category = categories[index];
   if (category === "全部") {
-    fetchNewsList();
+    theme.value = "";
+    fetchNewsList(true);
     return;
   }
-  fetchNewsList("", category);
+  theme.value = categories[index];
+  fetchNewsList(true);
 };
 
+const onInput = (event) => {
+  title.value = event.value;
+}
+
+const onSearch = (event) => {
+  title.value = event.value;
+  fetchNewsList(true);
+};
+// 触底加载更多
+onReachBottom(() => {
+  if (!loading.value) {
+    fetchNewsList();
+  }
+});
 // 页面加载时获取新闻数据
-onMounted(() => {
-  fetchNewsList();
+onLoad(() => {
+  fetchNewsList(true);
 });
 </script>
 

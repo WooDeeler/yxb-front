@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
-import { newsApi } from "@/api"; // 假设API路径
+import { newsApi } from "@/api"; 
 
 interface NewsDetail {
   id: string;
