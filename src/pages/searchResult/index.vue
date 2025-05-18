@@ -105,7 +105,7 @@ const loadSearchResults = async (keyword: string) => {
   try {
     const response = await postApi.condQuery({
       title: keyword,
-      tag: "",
+      type: "1",
     });
 
     let newPosts = [];

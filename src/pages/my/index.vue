@@ -19,7 +19,7 @@
       </view>
       <view class="menu-item" @click="navigateTo('/pages/collections/index')">
         <uni-icons type="star" size="20"></uni-icons>
-        <text>收藏</text>
+        <text>关注收藏</text>
         <uni-icons type="forward" size="16"></uni-icons>
       </view>
       <view class="menu-item" @click="navigateTo('/pages/posts/index')">

@@ -104,7 +104,7 @@
           <view class="actions-left">
             <view class="action-item">
               <uni-icons type="chat" size="20"></uni-icons>
-              <text>{{ post.comments }}</text>
+              <!-- <text>{{ post.comments }}</text> -->
             </view>
             <view class="action-item" @click.stop="toggleLike(index)">
               <uni-icons

@@ -153,6 +153,7 @@ const getPostDetail = async (pid: number) => {
       post.value.updateTime = new Date(post.value.updateTime)
         .toISOString()
         .split("T")[0];
+      post.value.comments = comments.value.length;
     });
   } catch (error) {
     console.error("获取帖子详情失败:", error);

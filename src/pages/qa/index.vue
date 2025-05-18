@@ -14,11 +14,13 @@
 
     <view class="header-section">
       <view class="nav-bar">
-        <view @click="navigateToSearchPage">
+        <view>
           <uni-search-bar
             placeholder="搜索难题问答"
             radius="40"
             clearButton="auto"
+            @confirm="onSearch"
+            @input="onInput"
           />
         </view>
         <view class="post-button" @click="navigateToPostPage">
@@ -63,19 +65,35 @@
           <text class="qa-tag">问答</text>
           <text class="title">{{ question.title }}</text>
           <text class="content">{{ question.content }}</text>
+          <view
+            class="qa-images"
+            v-if="question.imageList && question.imageList.length > 0"
+          >
+            <image
+              v-for="(img, idx) in question.imageList.slice(0, 3)"
+              :key="idx"
+              :src="img"
+              mode="aspectFill"
+              class="qa-image"
+              @click="previewImage(question.imageList, idx)"
+            />
+          </view>
         </view>
         <view class="qa-footer">
           <view class="actions-left">
             <view class="action-item">
               <uni-icons type="chat" size="20"></uni-icons>
-              <text>{{ question.answers }} 回答</text>
             </view>
-            <view class="action-item">
-              <uni-icons type="heart" size="20"></uni-icons>
+            <view class="action-item" @click.stop="toggleLike(index)">
+              <uni-icons
+                :type="question.isLiked ? 'heart-filled' : 'heart'"
+                size="20"
+                :color="question.isLiked ? '#ff0000' : '#000000'"
+              ></uni-icons>
               <text>{{ question.likes }}</text>
             </view>
           </view>
-          <text class="time">{{ question.time }}</text>
+          <text class="time">{{ question.updateTime }}</text>
         </view>
       </view>
     </view>
@@ -84,61 +102,121 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-
+import { onShow, onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
+import { postApi } from "@/api";
 const currentCategory = ref(0);
 const loading = ref(false);
+const title = ref("");
 
 const categories = ["全部", "数学", "英语", "政治", "专业课"];
 
-const questions = ref([
+interface Qa {
+  id: number;
+  avatar: string;
+  username: string;
+  updateTime: string;
+  title: string;
+  content: string;
+  likes: number;
+  isLiked: boolean;
+  imageList?: string[];
+}
+const questions = ref<Qa[]>([
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
     username: "考研小白",
-    time: "10分钟前",
+    updateTime: "10分钟前",
     title: "高数中的泰勒公式如何理解和运用？",
     content:
       "在复习高等数学时遇到了泰勒公式，感觉很难理解，希望有大神能详细讲解一下...",
-    answers: 5,
     likes: 128,
+    imageList: ["/static/logo.png"],
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
     username: "英语达人",
-    time: "30分钟前",
+    updateTime: "30分钟前",
     title: "考研英语长难句如何破解？",
     content: "英语阅读理解中经常遇到特别长的句子，求解析方法...",
-    answers: 8,
     likes: 256,
+    imageList: ["/static/logo.png"],
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
     username: "政治思考者",
-    time: "1小时前",
+    timupdateTimee: "1小时前",
     title: "如何理解马克思主义政治经济学的基本原理？",
     content: "在复习政治时对这部分内容理解不够深入，希望能得到详细解答...",
-    answers: 12,
     likes: 345,
+    imageList: ["/static/logo.png"],
   },
 ]);
 
-const router = useRouter();
-
-const navigateToSearchPage = () => {
-  uni.navigateTo({ url: "/pages/searchPage/index" });
+const getQaList = async () => {
+  try {
+    const res = await postApi.condQuery({
+      title: title.value,
+      type: "2",
+    });
+    let qs = [];
+    if (res.data === null || res.data.total === 0) {
+      uni.showToast({
+        title: "没有查询到数据",
+        icon: "none",
+      });
+    } else {
+      qs = res.data.list.map((q) => ({
+        ...q,
+        updateTime: new Date(q.updateTime).toISOString().split("T")[0],
+      }));
+    }
+    questions.value = qs;
+  } catch (e) {
+    console.log(e);
+  }
 };
+
+const toggleLike = (index: number) => {
+  const qa = questions.value[index];
+  qa.isLiked = !qa.isLiked;
+  qa.likes += qa.isLiked ? 1 : -1;
+};
+
+const onInput = (event) => {
+  title.value = event.value;
+};
+
+const onSearch = (event) => {
+  title.value = event.value;
+  getQaList();
+};
+
+onLoad(() => {
+  getQaList();
+});
+
+// 下拉刷新
+onPullDownRefresh(() => {
+  getQaList();
+  uni.stopPullDownRefresh();
+});
 
 const navigateToPostPage = () => {
-  uni.navigateTo({ url: "/pages/postPage/index" });
+  uni.navigateTo({ url: "/pages/qaPage/index" });
 };
 
-const navigateToQuestionDetail = (question: any) => {
-  uni.navigateTo({ url: `/pages/postDetail/index` });
+const navigateToQuestionDetail = (qa: Qa) => {
+  uni.navigateTo({ url: `/pages/postDetail/index?id=${qa.id}` });
 };
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
-  // 这里可以根据分类筛选问题列表
+  if (index === 0) {
+    title.value = "";
+  } else {
+    title.value = categories[index];
+  }
+  getQaList();
 };
 </script>
 
@@ -306,6 +384,20 @@ const handleCategoryClick = (index: number) => {
       font-size: 28rpx;
       color: #5c6b7f;
       line-height: 1.6;
+    }
+
+    .qa-images {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10rpx;
+      margin-top: 16rpx;
+
+      .qa-image {
+        width: 100%;
+        height: 180rpx;
+        border-radius: 8rpx;
+        background-color: #f5f5f5;
+      }
     }
   }
 
