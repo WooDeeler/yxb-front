@@ -107,6 +107,18 @@
       "style": {
         "navigationBarTitleText": "资料下载"
       }
+    },
+    {
+      "path": "pages/addGroup/index",
+      "style": {
+        "navigationBarTitleText": "搜索群聊"
+      }
+    },
+    {
+      "path": "pages/groupSet/index",
+      "style": {
+        "navigationBarTitleText": "群成员管理"
+      }
     }
   ],
   "globalStyle": {

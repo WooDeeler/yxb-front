@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar">
+    <view class="nav-bar" @click="navigateToGroupSet">
       <text class="group-name">一起备考</text>
     </view>
 
@@ -156,6 +156,10 @@ const scrollToBottom = () => {
 onMounted(() => {
   scrollToBottom();
 });
+
+const navigateToGroupSet = () => {
+  uni.navigateTo({ url: "/pages/groupSet/index" });
+};
 
 const sendMessage = () => {
   if (inputMessage.value.trim()) {

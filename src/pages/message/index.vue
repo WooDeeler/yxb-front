@@ -1,19 +1,13 @@
 <template>
   <view class="container">
     <!-- 搜索栏 -->
-    <view class="search-bar">
+    <view class="search-bar" @click="handleMenuClick()">
       <view class="search-input">
         <text class="iconfont icon-search"></text>
         <input placeholder="搜索" />
       </view>
-      <view class="add-btn" @click="toggleAddMenu">
+      <view class="add-btn">
         <uni-icons type="plus" size="24" color="#333" />
-        <view v-if="showMenu" class="menu-container" @click.stop>
-          <view class="menu-item" @click="handleMenuClick('group')">
-            <uni-icons type="person-add" size="20" />
-            <text>发起群聊</text>
-          </view>
-        </view>
       </view>
     </view>
 
@@ -70,7 +64,7 @@ const messages = ref<MessageItem[]>([
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
     name: "华东交通大学备考群",
     time: "12:30",
-    preview: "阁谈 : 同学们加油!",
+    preview: "wenbo : 同学们加油!",
   },
   {
     avatar: "/static/logo.png",
@@ -88,7 +82,6 @@ const messages = ref<MessageItem[]>([
 
 const popup = ref();
 const selectedIndex = ref<number>(-1);
-const showMenu = ref(false);
 
 const showActionPopup = (index: number) => {
   selectedIndex.value = index;
@@ -111,27 +104,8 @@ const navigateToChat = () => {
   uni.navigateTo({ url: "/pages/chat/index" });
 };
 
-const toggleAddMenu = () => {
-  showMenu.value = !showMenu.value;
-};
-
-const handleMenuClick = (type: string) => {
-  showMenu.value = false;
-  switch (type) {
-    case "group":
-      uni.navigateTo({ url: "/pages/chat/index?type=group&create=true" });
-      break;
-    case "friend":
-      uni.navigateTo({ url: "/pages/chat/index?type=friend" });
-      break;
-    case "scan":
-      uni.scanCode({
-        success: (res) => {
-          console.log("扫码结果:", res.result);
-        },
-      });
-      break;
-  }
+const handleMenuClick = () => {
+  uni.navigateTo({ url: "/pages/addGroup/index" });
 };
 </script>
 
