@@ -1,8 +1,8 @@
 <template>
   <view class="container">
     <!-- 顶部导航栏 -->
-    <view class="nav-bar" @click="navigateToGroupSet">
-      <text class="group-name">一起备考</text>
+    <view class="nav-bar" @click="navigateToGroupSet(groupName)">
+      <text class="group-name">{{ groupName }}</text>
     </view>
 
     <!-- 聊天记录列表 -->
@@ -21,11 +21,13 @@
       >
         <image class="avatar" :src="message.avatar" />
         <view class="message-content">
-          <text class="name" v-if="!message.isSelf">{{ message.name }}</text>
+          <text class="name" v-if="!message.isSelf">{{
+            message.userName
+          }}</text>
           <view class="bubble">
             <text>{{ message.content }}</text>
           </view>
-          <text class="time">{{ message.time }}</text>
+          <text class="time">{{ message.sendTime }}</text>
         </view>
       </view>
       <view id="msg-bottom"></view>
@@ -40,80 +42,66 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from "vue";
+import { ref, nextTick } from "vue";
+import { chatApi } from "@/api";
+import { onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
+import { useUserStore } from "@/store/userStore";
+const userStore = useUserStore();
+const userInfo = userStore.getUserInfo;
 
 interface ChatMessage {
+  groupId: number;
+  uid: number;
   avatar: string;
-  name: string;
+  userName: string;
   content: string;
-  time: string;
+  sendTime: string;
   isSelf: boolean;
 }
 
 const messages = ref<ChatMessage[]>([
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
-    name: "考研学长",
+    userName: "考研学长",
     content: "大家好，我是去年考上清华的学长，欢迎大家交流考研经验！",
-    time: "10:00",
+    sendTime: "10:00",
     isSelf: false,
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
-    name: "考研小白",
+    userName: "考研小白",
     content: "学长好！想请教一下数学复习有什么好的方法吗？",
-    time: "10:01",
+    sendTime: "10:01",
     isSelf: false,
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
-    name: "考研学长",
+    userName: "考研学长",
     content:
       "数学复习建议：1. 先把基础知识打牢，认真过一遍课本 2. 多做题，特别是历年真题 3. 总结错题，建立知识体系",
-    time: "10:05",
+    sendTime: "10:05",
     isSelf: false,
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
-    name: "资料分享者",
+    userName: "资料分享者",
     content:
       "我整理了一份考研资料合集，包括各科复习重点、真题解析等，需要的可以私信我",
-    time: "10:10",
+    sendTime: "10:10",
     isSelf: false,
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
-    name: "考研人",
+    userName: "考研人",
     content: "最近在准备英语，大家有什么推荐的背单词APP吗？",
-    time: "10:15",
+    sendTime: "10:15",
     isSelf: false,
   },
   {
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/USTC.svg",
-    name: "考研答疑",
+    userName: "考研答疑",
     content: "政治复习建议：1. 先过一遍大纲解析 2. 做1000题 3. 最后背肖四肖八",
-    time: "10:20",
-    isSelf: false,
-  },
-  {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
-    name: "考研人",
-    content: "请问计算机专业，北航和北邮哪个更好考一些？",
-    time: "10:25",
-    isSelf: false,
-  },
-  {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
-    name: "考研学姐",
-    content: "北邮计算机竞争更激烈但就业好，北航相对容易些但复试要求高",
-    time: "10:30",
-    isSelf: false,
-  },
-  {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
-    name: "考研打卡",
-    content: "今天完成了数学3小时，英语2小时，政治1小时，专业课2小时",
-    time: "10:35",
+    sendTime: "10:20",
     isSelf: false,
   },
 ]);
@@ -121,6 +109,26 @@ const messages = ref<ChatMessage[]>([
 const inputMessage = ref("");
 const chatListRef = ref<any>(null);
 const lastMessageId = ref("msg-bottom");
+const groupId = ref(0);
+const groupName = ref("");
+
+const getMsg = async () => {
+  try {
+    console.log("gid", groupId);
+    const res = await chatApi.getGroupMsgs(groupId.value);
+    messages.value = res.data.map((item) => ({
+      ...item,
+      sendTime: new Date(item.sendTime).toISOString().split("T")[0],
+      isSelf: item.uid === userInfo.uid,
+    }));
+  } catch (error) {
+    console.log("err", error);
+    uni.showToast({
+      title: "网络异常",
+      icon: "none",
+    });
+  }
+};
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -153,30 +161,43 @@ const scrollToBottom = () => {
   });
 };
 
-onMounted(() => {
-  scrollToBottom();
+onLoad((options) => {
+  console.log("onLoad", options);
+  if (options?.id) {
+    groupId.value = decodeURIComponent(options.id);
+    groupName.value = decodeURIComponent(options.name);
+    getMsg(groupId.value);
+  }
 });
 
-const navigateToGroupSet = () => {
-  uni.navigateTo({ url: "/pages/groupSet/index" });
+const navigateToGroupSet = (name: string) => {
+  uni.navigateTo({ url: `/pages/groupSet/index?name=${name}`});
 };
 
 const sendMessage = () => {
   if (inputMessage.value.trim()) {
     const content = inputMessage.value.slice(0, 100); // 限制消息长度为100
     messages.value.push({
-      avatar:
-        "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
-      name: "我",
+      avatar: userInfo.avatar,
+      userName: userInfo.username,
+      uid: userInfo.uid,
+      groupId: groupId.value,
       content: content,
-      time: new Date().toLocaleTimeString("zh-CN", {
+      sendTime: new Date().toLocaleTimeString("zh-CN", {
         hour: "2-digit",
         minute: "2-digit",
       }),
       isSelf: true,
     });
+    // 发送消息到服务器
+    chatApi.sendMsg({
+      groupId: groupId.value,
+      uid: userInfo.uid,
+      content: content,
+      userName: userInfo.userName,
+      avatar: userInfo.avatar,
+    });
     inputMessage.value = "";
-    scrollToBottom();
   }
 };
 </script>

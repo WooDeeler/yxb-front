@@ -44,12 +44,17 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { chatApi } from "@/api";
+import { useUserStore } from "@/store/userStore";
+const userStore = useUserStore();
+const userInfo = userStore.getUserInfo;
 
 interface GroupItem {
   id: string;
+  ownerId: number;
   avatar: string;
   name: string;
-  description: string;
+  tags: string;
 }
 
 const searchQuery = ref("");
@@ -58,33 +63,50 @@ const searched = ref(false); // 标记是否执行过搜索
 
 const performSearch = () => {
   searched.value = true;
-  // 模拟搜索逻辑，实际应替换为API调用
-  if (searchQuery.value.trim() === "") {
-    searchResults.value = [];
-    return;
+  searchResults.value = [];
+  try {
+    chatApi
+      .queryGroup({
+        name: searchQuery.value,
+      })
+      .then((res) => {
+        res.data.forEach((item) => {
+          searchResults.value.push({
+            id: item.id,
+            ownerId: item.ownerId,
+            avatar: "/static/lls.svg",
+            name: item.name,
+            tags: item.tags,
+          });
+        });
+      });
+  } catch (e) {
+    // mock数据
+    searchResults.value = [
+      {
+        id: "1",
+        ownerId: 27,
+        avatar:
+          "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
+        name: "华东交通大学备考群",
+        tags: "一起备战华东交大！",
+      },
+      {
+        id: "2",
+        ownerId: 27,
+        avatar: "/static/logo.png",
+        name: "计算机考研交流",
+        tags: "408学习小组",
+      },
+    ].filter((group) => group.name.includes(searchQuery.value));
   }
-  // 模拟数据
-  searchResults.value = [
-    {
-      id: "1",
-      avatar:
-        "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
-      name: "华东交通大学备考群",
-      description: "一起备战华东交大！",
-    },
-    {
-      id: "2",
-      avatar: "/static/logo.png",
-      name: "计算机考研交流",
-      description: "408学习小组",
-    },
-  ].filter((group) => group.name.includes(searchQuery.value));
 };
 
 const joinGroup = (groupId: string) => {
-  // 实际应调用加群接口
-  console.log("Join group:", groupId);
-  // 可以在此处添加 uni.showToast 等提示
+  const res = chatApi.joinGroup({
+    gid: groupId,
+    uid: userInfo.uid,
+  });
   uni.showToast({
     title: `已申请加入群聊`,
     icon: "none",

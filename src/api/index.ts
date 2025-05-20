@@ -1,5 +1,6 @@
 import axios from "axios";
 import { url } from "hexo/dist/hexo/default_config";
+import { date } from "hexo/dist/plugins/helper/date";
 const baseURL = "http://119.29.191.232";
 // const baseURL = "http://127.0.0.1";
 
@@ -193,11 +194,64 @@ export const majorApi = {
   }
 }
 
+let port3 = ":8591"
+
+// 群聊接口
+export const chatApi = {  
+  // 创建群聊
+  createGroup: (data) => {
+    return request.post(port3 + "/chat/group/create", data);
+  },
+  // 查询群聊信息
+  getDetail: (id: number) => {
+    return request.post(port3 + `/chat/group/detail?gid=${id}`);
+  },
+  // 搜索群聊
+  queryGroup: (data) => {
+    return request.post(port3 + "/chat/group/query", data);
+  },
+  // 更新群聊信息
+  updateGroup: (data) => {
+    return request.post(port3 + "/chat/group/update", data);
+  },
+  // 删除群聊
+  delGroup: (id: number) => {
+    return request.post(port3 + `/chat/group/delete?gid=${id}`);
+  },
+  // 加入群聊
+  joinGroup: (data) => {
+    return request.post(port3 + "/chat/list/join", data);
+  },
+  // 退出群聊
+  leaveGroup: (data) => {
+    return request.post(port3 + "/chat/list/leave", data);
+  },
+  // 获取用户群聊列表
+  getUserGroupList: (id: number) => {
+    return request.post(port3 + `/chat/list/user?uid=${id}`);
+  },
+  // 发送群聊消息
+  sendMsg: (data) => {
+    return request.post(port3 + "/chat/msg/send", data);
+  },
+  // 查询群聊信息
+  getGroupMsgs: (id: number) => {
+    return request.post(port3 + `/chat/msg/list?gid=${id}`);
+  },
+}
+
+
+let port4 = ":8891"
+
 // 用户相关API
 export const userApi = {
   // 获取用户详细信息
   getUserDetail: (userId: string) => {
     return request.get(`/user/detail/${userId}`);
+  },
+
+  batchGetUserDetail: (data) => {
+    return request.post(port4 + "/user/batchUsers", data);
   },
 
   // 更新用户资料
@@ -324,4 +378,5 @@ export default {
   fileApi,
   studyApi,
   schoolApi,
+  chatApi,
 };

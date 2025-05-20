@@ -119,6 +119,12 @@
       "style": {
         "navigationBarTitleText": "群成员管理"
       }
+    },
+    {
+      "path": "pages/createGroup/index",
+      "style": {
+        "navigationBarTitleText": "创建群聊"
+      }
     }
   ],
   "globalStyle": {

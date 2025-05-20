@@ -43,10 +43,54 @@
       </view>
     </scroll-view>
   </view>
+  <!-- 编辑群聊信息模态框 -->
+  <view v-if="showEditModal" class="modal-overlay">
+    <view class="modal-content">
+      <text class="modal-title">编辑群聊信息</text>
+      <view class="form-item">
+        <text class="label">群头像</text>
+        <image class="avatar-preview" :src="editableGroupInfo.avatar"></image>
+      </view>
+      <view class="form-item">
+        <text class="label">群名称</text>
+        <input
+          class="input"
+          v-model="editableGroupInfo.name"
+          placeholder="请输入群名称"
+        />
+      </view>
+      <view class="form-item">
+        <text class="label">群公告</text>
+        <textarea
+          class="textarea"
+          v-model="editableGroupInfo.announcement"
+          placeholder="请输入群公告"
+        ></textarea>
+      </view>
+      <view class="modal-actions">
+        <button class="button cancel-btn" @click="cancelEdit">取消</button>
+        <button class="button save-btn" @click="saveGroupInfo">保存</button>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { chatApi, userApi } from "@/api";
+import { onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
+import { useUserStore } from "@/store/userStore";
+const userStore = useUserStore();
+const userInfo = userStore.getUserInfo;
+const groupName = ref("");
+
+// Reactive state for modal visibility and editable group info
+const showEditModal = ref(false);
+const editableGroupInfo = ref<GroupInfo>({
+  avatar: "",
+  name: "",
+  announcement: "",
+});
 
 interface GroupInfo {
   avatar: string;
@@ -64,38 +108,38 @@ interface GroupMember {
 
 const members = ref<GroupMember[]>([
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
-    name: "考研学长",
+    avatar: "http://images.nowcoder.com/head/23t.png",
+    name: "user1",
     role: "管理员",
     isOwner: true,
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
+    avatar: "http://images.nowcoder.com/head/100t.png",
     name: "考研小白",
     role: "成员",
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
+    avatar: "http://images.nowcoder.com/head/705t.png",
     name: "资料分享者",
     role: "成员",
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
+    avatar: "http://images.nowcoder.com/head/180t.png",
     name: "考研人",
     role: "成员",
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/USTC.svg",
+    avatar: "http://images.nowcoder.com/head/896t.png",
     name: "考研答疑",
     role: "成员",
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
+    avatar: "http://images.nowcoder.com/head/896t.png",
     name: "考研学姐",
     role: "成员",
   },
   {
-    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/myav.svg",
     name: "我",
     role: "管理员",
     isAdmin: true,
@@ -103,17 +147,30 @@ const members = ref<GroupMember[]>([
 ]);
 
 const groupInfo = ref<GroupInfo>({
-  avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg", // 示例群头像
-  name: "华东交通大学备考群",
+  avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/lls.svg",
+  name: "备考群",
   announcement: "欢迎加入考研交流群！请大家积极分享学习资料和经验，共同进步！",
 });
 
 const editGroupInfo = () => {
+  // Populate editableGroupInfo with current groupInfo and show modal
+  editableGroupInfo.value = { ...groupInfo.value };
+  showEditModal.value = true;
+};
+
+// Function to save group info changes
+const saveGroupInfo = () => {
+  groupInfo.value = { ...editableGroupInfo.value };
+  showEditModal.value = false;
   uni.showToast({
-    title: "编辑群聊信息功能待实现",
-    icon: "none",
+    title: "信息已更新",
+    icon: "success",
   });
-  // 在这里可以添加跳转到编辑页面的逻辑或弹出编辑模态框
+};
+
+// Function to cancel editing
+const cancelEdit = () => {
+  showEditModal.value = false;
 };
 
 const removeMember = (index: number) => {
@@ -146,9 +203,106 @@ const setAdmin = (index: number) => {
     icon: "success",
   });
 };
+
+onLoad((options) => {
+  console.log("onLoad", options);
+  if (options?.name) {
+    groupName.value = decodeURIComponent(options.name);
+    groupInfo.value.name = groupName.value;
+  }
+});
 </script>
 
 <style lang="scss">
+// 模态框样式
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; //确保在最上层
+}
+
+.modal-content {
+  background-color: white;
+  padding: 40rpx;
+  border-radius: 15rpx;
+  width: 80%;
+  max-width: 600rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30rpx;
+  display: block;
+}
+
+.form-item {
+  margin-bottom: 25rpx;
+  .avatar-preview {
+    width: 100rpx;
+    height: 100rpx;
+    border-radius: 8rpx;
+    background-color: #eee; // Placeholder background
+    display: block; // Ensure it takes up space
+    margin-top: 10rpx; // Space from label
+  }
+  .label {
+    display: block;
+    font-size: 28rpx;
+    color: #555;
+    margin-bottom: 10rpx;
+  }
+  .input,
+  .textarea {
+    width: calc(100% - 40rpx); // 减去padding
+    padding: 15rpx 20rpx;
+    border: 1rpx solid #ddd;
+    border-radius: 8rpx;
+    font-size: 28rpx;
+    background-color: #f9f9f9;
+  }
+  .textarea {
+    height: 120rpx; // 设定固定高度
+    line-height: 1.5;
+  }
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between; // 或者使用 flex-end 并调整按钮顺序
+  margin-top: 40rpx;
+  .button {
+    flex: 1; // 让按钮平分空间
+    padding: 20rpx 0; // 统一padding
+    font-size: 30rpx;
+    border-radius: 8rpx;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    &:not(:last-child) {
+      margin-right: 20rpx; // 按钮间距
+    }
+  }
+  .save-btn {
+    background-color: #1890ff;
+    color: white;
+  }
+  .cancel-btn {
+    background-color: #f0f0f0;
+    color: #555;
+    border: 1rpx solid #ddd;
+  }
+}
 .container {
   display: flex;
   flex-direction: column;

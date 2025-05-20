@@ -1,5 +1,17 @@
 <template>
   <view class="container">
+    <!-- 微信授权登录弹窗 -->
+    <view v-if="showLoginModal" class="login-modal-overlay">
+      <view class="login-modal-content">
+        <text class="modal-title">登录研习宝</text>
+        <text class="modal-subtitle">获取更完整的服务体验</text>
+        <button class="authorize-button" @click="handleAuthorizeLogin">
+          <uni-icons type="weixin" size="20" color="#fff"></uni-icons>
+          <text>微信一键登录</text>
+        </button>
+        <button class="skip-button" @click="handleSkipLogin">暂不登录</button>
+      </view>
+    </view>
     <!-- 加载动画 -->
     <uni-load-more
       v-if="loading"
@@ -126,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Text } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   onShow,
@@ -151,6 +163,9 @@ interface Post {
   tags?: string[];
   comments: 0;
 }
+
+const showLoginModal = ref(false);
+const isLoggedIn = ref(false);
 
 const currentCategory = ref(0);
 const loading = ref(false);
@@ -276,6 +291,11 @@ const navigateToPostDetail = (post: Post) => {
 const loadPosts = async (isRefresh = false) => {
   loading.value = true;
   try {
+    // 如果未登录且非跳过登录，则不加载帖子
+    if (!isLoggedIn.value && showLoginModal.value) {
+      loading.value = false;
+      return;
+    }
     const response = await postApi.getPostList({
       page: isRefresh ? 1 : page.value++,
       size: size.value,
@@ -317,9 +337,51 @@ onPullDownRefresh(() => {
 });
 
 // 页面加载时获取数据
-onLoad(() => {
-  loadPosts(true);
+onLoad(async () => {
+  // 检查本地存储的登录状态
+  try {
+    const storedLoginStatus = uni.getStorageSync("isLoggedIn");
+    if (storedLoginStatus) {
+      isLoggedIn.value = true;
+      await loadPosts(true); // 已登录，直接加载数据
+    } else {
+      showLoginModal.value = true; // 未登录，显示登录弹窗
+    }
+  } catch (e) {
+    console.error("Failed to get login status from storage:", e);
+    showLoginModal.value = true; // 发生错误时也显示登录弹窗
+  }
 });
+
+const handleAuthorizeLogin = async () => {
+  try {
+    // @ts-ignore
+    const loginRes = await uni.login({ provider: "weixin" });
+    if (loginRes.errMsg === "login:ok") {
+      console.log("微信登录凭证:", loginRes.code);
+      uni.setStorageSync("isLoggedIn", true);
+      isLoggedIn.value = true;
+      showLoginModal.value = false;
+      await loadPosts(true); 
+      uni.showToast({ title: "登录成功", icon: "success" });
+    } else {
+      uni.showToast({ title: "微信登录取消或失败", icon: "none" });
+      await loadPosts(true);
+      showLoginModal.value = false; 
+    }
+  } catch (error) {
+    console.error("微信登录过程中发生错误:", error);
+    uni.showToast({ title: "微信登录失败", icon: "none" });
+    await loadPosts(true);
+    showLoginModal.value = false; 
+  }
+};
+
+const handleSkipLogin = async () => {
+  showLoginModal.value = false;
+  isLoggedIn.value = false; 
+  await loadPosts(true); 
+};
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
@@ -344,9 +406,9 @@ onReachBottom(() => {
 });
 
 // 页面加载时获取数据
-onLoad(() => {
-  loadPosts(true);
-});
+// onLoad(() => {
+//   loadPosts(true);
+// }); // Removed duplicate onLoad
 
 // 页面显示时重置分类为推荐并加载数据
 onShow(() => {
@@ -673,5 +735,77 @@ const toggleLike = (index: number) => {
   100% {
     transform: translateX(-100%); /* Ensure it scrolls completely out */
   }
+}
+
+/* 登录弹窗样式 */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align to bottom */
+  z-index: 999;
+}
+
+.login-modal-content {
+  background-color: #fff;
+  padding: 40rpx;
+  border-top-left-radius: 30rpx; /* Rounded corners for top */
+  border-top-right-radius: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Full width */
+  box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.1); /* Shadow on top */
+  padding-bottom: env(safe-area-inset-bottom); /*适配全面屏底部安全区域*/
+}
+
+.modal-title {
+  font-size: 40rpx; /* Increased font size */
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx; /* Increased margin */
+}
+
+.modal-subtitle {
+  font-size: 30rpx; /* Increased font size */
+  color: #666;
+  margin-bottom: 60rpx; /* Increased margin for more space */
+  text-align: center;
+}
+
+.authorize-button {
+  background-color: #07c160; /* 统一微信绿 */
+  color: #fff;
+  border: none;
+  border-radius: 50rpx; /* More rounded */
+  padding: 24rpx 0; /* Increased padding */
+  font-size: 34rpx; /* Increased font size */
+  width: 90%; /* Slightly less than full width for better aesthetics */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx; /* Increased margin */
+  box-shadow: 0 4rpx 10rpx rgba(7, 193, 96, 0.4); /* Enhanced shadow */
+}
+
+.authorize-button text {
+  margin-left: 12rpx; /* Adjusted margin */
+}
+
+.skip-button {
+  background-color: #f0f0f0; /* Slightly darker for better contrast */
+  color: #555; /* Darker text */
+  border: none; /* Removed border for a cleaner look */
+  border-radius: 50rpx; /* More rounded */
+  padding: 24rpx 0; /* Increased padding */
+  font-size: 34rpx; /* Increased font size */
+  width: 90%; /* Slightly less than full width */
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+  margin-bottom: 20rpx; /* Add some bottom margin */
 }
 </style>

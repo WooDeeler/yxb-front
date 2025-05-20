@@ -1,12 +1,12 @@
 <template>
   <view class="container">
     <!-- 搜索栏 -->
-    <view class="search-bar" @click="handleMenuClick()">
-      <view class="search-input">
+    <view class="search-bar">
+      <view class="search-input" @click="handleInputClick()">
         <text class="iconfont icon-search"></text>
         <input placeholder="搜索" />
       </view>
-      <view class="add-btn">
+      <view class="add-btn" @click="handleAddClick()">
         <uni-icons type="plus" size="24" color="#333" />
       </view>
     </view>
@@ -17,16 +17,16 @@
         v-for="(item, index) in messages"
         :key="index"
         class="message-item"
-        @click="navigateToChat"
+        @click="navigateToChat(item)"
         @longpress="() => showActionPopup(index)"
       >
         <image class="avatar" :src="item.avatar" />
         <view class="content">
           <view class="top">
-            <text class="name">{{ item.name }}</text>
-            <text class="time">{{ item.time }}</text>
+            <text class="name">{{ item.groupName }}</text>
+            <text class="time">{{ item.latestTime }}</text>
           </view>
-          <text class="preview">{{ item.preview }}</text>
+          <text class="preview">{{ item.latestMessage }}</text>
         </view>
       </view>
     </scroll-view>
@@ -48,35 +48,42 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { chatApi } from "@/api";
+import { onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
 
-const router = useRouter();
+import { useUserStore } from "@/store/userStore";
+const userStore = useUserStore();
+const userInfo = userStore.getUserInfo;
 
 interface MessageItem {
+  groupId: number;
   avatar: string;
-  name: string;
-  time: string;
-  preview: string;
+  groupName: string;
+  latestMessage: string;
+  latestTime: string;
 }
 
 const messages = ref<MessageItem[]>([
   {
+    groupId: 1,
     avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
-    name: "华东交通大学备考群",
-    time: "12:30",
-    preview: "wenbo : 同学们加油!",
+    groupName: "华东交通大学备考群",
+    latestTime: "12:30",
+    latestMessage: "wenbo : 同学们加油!",
   },
   {
+    groupId: 2,
     avatar: "/static/logo.png",
-    name: "413复习打卡小组",
-    time: "昨天",
-    preview: "lihan : 今天打卡了吗?",
+    groupName: "413复习打卡小组",
+    latestTime: "昨天",
+    latestMessage: "lihan : 今天打卡了吗?",
   },
   {
+    groupId: 3,
     avatar: "/static/lls.svg",
-    name: "考研数一答疑群",
-    time: "星期一",
-    preview: "廖老师 : 明天晚上讲模拟卷",
+    groupName: "考研数一答疑群",
+    latestTime: "星期一",
+    latestMessage: "廖老师 : 明天晚上讲模拟卷",
   },
 ]);
 
@@ -90,8 +97,10 @@ const showActionPopup = (index: number) => {
 
 const handleDelete = () => {
   if (selectedIndex.value !== -1) {
+    var gid = messages.value[selectedIndex.value].groupId;
     messages.value.splice(selectedIndex.value, 1);
     selectedIndex.value = -1;
+    delGroup(gid);
   }
   closePopup();
 };
@@ -100,13 +109,64 @@ const closePopup = () => {
   popup.value.close();
 };
 
-const navigateToChat = () => {
-  uni.navigateTo({ url: "/pages/chat/index" });
+const navigateToChat = (group: MessageItem) => {
+  uni.navigateTo({ url: `/pages/chat/index?id=${group.groupId}&name=${group.groupName}`});
 };
 
-const handleMenuClick = () => {
+const handleInputClick = () => {
   uni.navigateTo({ url: "/pages/addGroup/index" });
 };
+
+const handleAddClick = () => {
+  uni.navigateTo({ url: "/pages/createGroup/index" });
+};
+
+const delGroup = async (id: number) => {
+  try {
+    const res = await chatApi.leaveGroup({
+      uid: userInfo.uid,
+      gid: id,
+    });
+    uni.showToast({
+      title: "删除成功",
+      icon: "success",
+    });
+  } catch (e) {
+    uni.showToast({
+      title: "网络异常！删除失败",
+      icon: "none",
+    });
+  }
+}
+
+const getGroupList = async () => {
+  try {
+    const res = await chatApi.getUserGroupList(userInfo.uid);
+    if (res.data.length > 0) {
+      messages.value = res.data.map((item) => ({
+        ...item,
+        latestTime: new Date(item.latestTime).toISOString().split("T")[0],
+        avatar: "/static/lls.svg",
+      }));
+    }
+  } catch (e) {
+    uni.showToast({
+      title: "网络异常！加载失败",
+      icon: "none",
+    });
+  }
+};
+
+// 下拉刷新
+onPullDownRefresh(() => {
+  getGroupList();
+  uni.stopPullDownRefresh();
+});
+
+// 页面加载时获取数据
+onLoad(() => {
+  getGroupList();
+});
 </script>
 
 <style lang="scss">

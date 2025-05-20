@@ -66,7 +66,7 @@ const fetchNewsDetail = async (id: string) => {
     if (res.data) {
       newsItem.value = {
         ...res.data,
-        publishTime: new Date(res.data.publishTime) .toISOString().split("T")[0],
+        publishTime: new Date(res.data.publishTime).toISOString().split("T")[0],
       };
     } else {
       newsItem.value = {
@@ -74,7 +74,7 @@ const fetchNewsDetail = async (id: string) => {
         title: "新闻标题加载失败",
         content: "新闻内容加载失败，请稍后再试。",
         publishSource: "未知来源",
-        publishTime: new Date().toLocaleString(),
+        publishTime: new Date().toLocaleString().toISOString().split("T")[0],
         images: "/static/placeholder-image.png", // Placeholder image
       };
       uni.showToast({
@@ -90,7 +90,7 @@ const fetchNewsDetail = async (id: string) => {
       title: "无法加载新闻",
       content: "获取新闻详情时发生错误。",
       publishSource: "系统",
-      publishTime: new Date().toLocaleString(),
+      publishTime: new Date().toLocaleString().toISOString().split("T")[0],
     };
     uni.showToast({
       title: "获取详情失败，请检查网络",
