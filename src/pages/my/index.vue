@@ -7,8 +7,8 @@
         mode="aspectFill"
       ></image>
       <view class="user-info">
-        <text class="username">一研为定</text>
-        <text class="bio">目标院校: 华东交通大学</text>
+        <text class="username">{{ editedUsername }}</text>
+        <text class="bio">{{ editedBio }}</text>
         <view class="qr-code" @click="openEditModal">
           <uni-icons type="compose" size="20"></uni-icons>
         </view>
@@ -26,7 +26,10 @@
         <text>关注收藏</text>
         <uni-icons type="forward" size="16"></uni-icons>
       </view>
-      <view class="menu-item" @click="navigateTo('/pages/posts/index')">
+      <view
+        class="menu-item"
+        @click="navigateTo(`/pages/myPost/index?id=${userInfo.uid}`)"
+      >
         <uni-icons type="home" size="20"></uni-icons>
         <text>我的帖子</text>
         <uni-icons type="forward" size="16"></uni-icons>
@@ -77,16 +80,20 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { chatApi } from "@/api";
+import { onLoad, onPullDownRefresh } from "@dcloudio/uni-app";
+
+import { useUserStore } from "@/store/userStore";
+const userStore = useUserStore();
+const userInfo = userStore.getUserInfo;
 
 const showEditModal = ref(false);
-const editedUsername = ref("一研为定"); // Initialize with current username
-const editedBio = ref("目标院校: 华东交通大学"); // Initialize with current bio
+const editedUsername = ref("一研为定");
+const editedBio = ref("目标院校: 华东交通大学");
 
 const openEditModal = () => {
-  // Potentially fetch current user data here if not already available
-  // For now, we use the initialized values
-  editedUsername.value = "一研为定"; // Reset or fetch current username
-  editedBio.value = "目标院校: 华东交通大学"; // Reset or fetch current bio
+  editedUsername.value = "一研为定";
+  editedBio.value = "目标院校: 华东交通大学";
   showEditModal.value = true;
 };
 
@@ -95,18 +102,12 @@ const closeEditModal = () => {
 };
 
 const saveProfile = () => {
-  // Here you would typically call an API to save the changes
   console.log("Saving profile:", editedUsername.value, editedBio.value);
-  // Update the displayed username and bio if needed
-  // For this example, we'll just log and close
   uni.showToast({
     title: "信息已更新",
     icon: "success",
   });
   closeEditModal();
-  // You might want to update the <text class="username"> and <text class="bio"> here
-  // For simplicity, this example doesn't directly update them in the UI after save,
-  // but in a real app, you'd bind them or re-fetch user info.
 };
 
 const navigateTo = (url: string) => {
@@ -161,8 +162,8 @@ const navigateTo = (url: string) => {
   border: 1rpx solid #ddd;
   border-radius: 8rpx;
   font-size: 28rpx;
-  height: 80rpx; 
-  line-height: 58rpx; 
+  height: 80rpx;
+  line-height: 58rpx;
   box-sizing: border-box;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 

@@ -3,7 +3,7 @@
     <!-- 头部导航 -->
     <view class="nav-bar">
       <text class="page-title">发布帖子</text>
-      <button class="submit-btn" :disabled="!postContent" @click="handleSubmit">
+      <button class="submit-btn" :disabled="!postContent" @click="handlePush">
         发布
       </button>
     </view>
@@ -69,6 +69,7 @@
 <script setup lang="ts">
 import { postApi, fileApi } from "@/api";
 import { ref, computed } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/store/userStore";
 const userStore = useUserStore();
 const userInfo = userStore.getUserInfo;
@@ -78,7 +79,9 @@ const postContent = ref("");
 const selectedImages = ref<String[]>([]);
 const location = ref("");
 const showTag = ref("");
+const comments = ref(1);
 const uid = ref(0);
+const postId = ref(0);
 const selectedTags = ref<string[]>([
   "考研经验",
   "学习方法",
@@ -142,6 +145,14 @@ const handleImageDelete = (index: number) => {
   selectedImages.value.splice(index, 1);
 };
 
+const handlePush = () => {
+  if (postId.value === 0) {
+    handleSubmit();
+  } else {
+    handleUpdate();
+  }
+}
+
 const handleSubmit = async () => {
   if (!postTitle.value || !postContent.value) {
     uni.showToast({ title: "发布失败！请填写完整", icon: "none" });
@@ -174,9 +185,60 @@ const handleSubmit = async () => {
   }
 };
 
+const handleUpdate = () => {
+  if (!postTitle.value || !postContent.value) {
+    uni.showToast({ title: "发布失败！请填写完整", icon: "none" });
+    return;
+  }
+  if (userInfo.uid === 0) {
+    uni.showToast({ title: "登录状态失效", icon: "none" });
+    return;
+  }
+  if (postId.value === 0) {
+    uni.showToast({ title: "网络异常，发布失败", icon: "none" });
+    return;
+  }
+  const formData = {
+    id: postId.value,
+    title: postTitle.value,
+    content: postContent.value,
+    imageList: selectedImages.value,
+    location: location.value,
+    tags: showTag.value,
+  };
+  uni.showLoading({ title: "发布中..." });
+  try {
+    postApi.updatePost(formData).then(() => {
+      uni.hideLoading();
+      uni.showToast({ title: "发布成功" });
+      uni.navigateBack();
+    })
+  } catch (error) {
+    console.error("发布失败:", error);
+    uni.hideLoading();
+    uni.showToast({ title: "发布失败! 网络异常", icon: "none" });
+  }
+};
+
 const navigateBack = () => {
   uni.navigateBack();
 };
+
+onLoad( async (options) => {
+  if (options && options.id) {
+    postId.value = Number(options.id);
+    const res = await postApi.getPostDetail(postId.value);
+    postContent.value = res.data.content;
+    postTitle.value = res.data.title;
+    location.value = res.data.location;
+    showTag.value = res.data.tags;
+    comments.value = res.data.comments;
+    if (res.data.imageList.length > 0) {
+      selectedImages.value = [...selectedImages.value, ...res.data.imageList];
+    }
+  }
+});
+
 </script>
 
 <style lang="scss">

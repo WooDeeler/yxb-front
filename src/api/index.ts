@@ -110,6 +110,11 @@ export const postApi = {
   getPostDetail: (postId: number) => {
     return request.post(port + `/post/detail?postId=${postId}`);
   },
+
+  getUserPost: (id: number) => {
+    return request.post(port + `/post/userPost?uid=${id}`);
+  },  
+
   // 发布帖子
   createPost: (data) => {
     return request.post(port + "/post/create", data);
@@ -122,7 +127,7 @@ export const postApi = {
 
   // 删除帖子
   deletePost: (id: number) => {
-    return request.post(port + `/post/delete?id=${id}`);
+    return request.post(port + `/post/delete?postId=${id}`);
   },
 };
 
