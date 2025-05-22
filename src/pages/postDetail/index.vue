@@ -6,7 +6,14 @@
         <image class="avatar" :src="post.avatar" mode="aspectFill"></image>
         <view class="info">
           <text class="name">{{ post.username }}</text>
-          <text class="time">{{ post.time }}</text>
+          <text class="time">{{ post.userUniversity }}</text>
+        </view>
+        <view
+          class="follow-button"
+          @click="toggleFollow"
+          style="margin-left: auto"
+        >
+          <text>{{ post.isFav ? "已关注" : "关注" }}</text>
         </view>
       </view>
     </view>
@@ -16,10 +23,10 @@
         <text>{{ post.content }}</text>
       </view>
 
-      <view class="image-preview" v-if="post.images && post.images.length > 0">
+      <view class="image-preview">
         <view class="image-grid">
           <image
-            v-for="(img, index) in post.images"
+            v-for="(img, index) in post.imageList"
             :key="index"
             :src="img"
             mode="aspectFill"
@@ -27,6 +34,10 @@
             @click="previewImage(index)"
           />
         </view>
+      </view>
+      <view class="location">
+        <text>{{ post.location }}</text>
+        <text>{{ post.updateTime }}</text>
       </view>
     </view>
 
@@ -44,31 +55,35 @@
             :src="comment.avatar"
             mode="aspectFill"
           ></image>
-          <view class="comment-content">
+          <view
+            class="comment-content"
+            @click="openCommentInput(comment.username)"
+          >
             <text class="comment-name">{{ comment.username }}</text>
             <text class="comment-text">{{ comment.content }}</text>
-            <text class="comment-time">{{ comment.time }}</text>
+            <view style="display: flex; width: 100%">
+              <text class="comment-time">{{ comment.superName }}</text>
+              <text class="comment-time" style="margin-left: auto">{{
+                comment.createTime
+              }}</text>
+            </view>
           </view>
         </view>
       </view>
     </view>
 
     <view class="interaction-bar">
-      <view class="action-item">
+      <view class="action-item" @click="openCommentInput()">
         <uni-icons type="chat" size="24"></uni-icons>
         <text>{{ post.comments }}</text>
       </view>
-      <view class="action-item">
+      <view class="action-item" @click.stop="toggleLike()">
         <uni-icons
           :type="post.isLiked ? 'heart-filled' : 'heart'"
           size="24"
           :color="post.isLiked ? '#ff0000' : '#000000'"
         ></uni-icons>
         <text>{{ post.likes }}</text>
-      </view>
-      <view class="action-item">
-        <uni-icons type="forward" size="24"></uni-icons>
-        <text>分享</text>
       </view>
     </view>
   </view>
@@ -77,74 +92,128 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
+import { postApi, commentApi } from "@/api";
 
 interface PostDetail {
-  title: string;
-  username: string;
+  id: number;
   avatar: string;
-  time: string;
+  username: string;
+  userUniversity: string;
+  updateTime: string;
+  title: string;
   content: string;
-  comments: number;
   likes: number;
   isLiked: boolean;
-  images?: string[];
+  imageList?: string[];
+  location: string;
+  tags?: string[];
 }
 
 interface Comment {
+  superName: string;
   username: string;
   avatar: string;
   content: string;
-  time: string;
+  createTime: string;
 }
 
 const post = ref<PostDetail>({
-  title: "",
-  username: "",
+  id: 0,
   avatar: "",
-  time: "",
+  username: "",
+  userUniversity: "",
+  updateTime: "",
+  title: "",
   content: "",
-  comments: 0,
   likes: 0,
   isLiked: false,
-  images: [],
+  imageList: [],
+  location: "",
+  tags: [],
+  isFav: false,
 });
 
-const comments = ref<Comment[]>([
-  {
-    username: "考研上岸",
-    avatar: "/static/logo.png",
-    content: "这个时间规划很合理，我也在这样安排",
-    time: "5分钟前",
-  },
-  {
-    username: "数学小王子",
-    avatar: "/static/logo.png",
-    content: "数学每天4小时会不会太少了？",
-    time: "15分钟前",
-  },
-]);
+const comments = ref<Comment[]>([]);
+
+const postId = ref("");
 
 onLoad((options) => {
-  // 模拟获取帖子详情数据
-  post.value = {
-    title: "分享我的考研复习时间规划，建议收藏！",
-    username: "考研人加油",
-    avatar: "/static/logo.png",
-    time: "10分钟前",
-    content:
-      "大家好，我是24考研备考的同学，这里分享一下我的复习计划和时间安排。\n\n1. 数学每天4小时\n- 上午2小时：复习基础知识点\n- 下午2小时：刷题训练\n\n2. 英语每天2小时\n- 早上1小时：背单词\n- 晚上1小时：阅读训练\n\n3. 专业课3小时\n- 按照考试大纲逐章学习\n- 配合视频讲解加深理解\n\n希望这个时间规划对大家有帮助！",
-    comments: 45,
-    likes: 128,
-    isLiked: false,
-    images: ["/static/posts/post-2.png", "/static/posts/post-3.png"],
-  };
+  console.log("onLoad", options);
+  if (options?.id) {
+    postId.value = decodeURIComponent(options.id);
+    getPostDetail(postId.value);
+    queryComments(postId.value);
+  }
 });
+
+const getPostDetail = async (pid: number) => {
+  try {
+    postApi.getPostDetail(pid).then((res) => {
+      post.value = res.data;
+      post.value.updateTime = new Date(post.value.updateTime)
+        .toISOString()
+        .split("T")[0];
+      post.value.comments = comments.value.length;
+    });
+  } catch (error) {
+    console.error("获取帖子详情失败:", error);
+  }
+};
+const toggleLike = (index: number) => {
+  post.value.isLiked = !post.value.isLiked;
+  post.value.likes += post.value.isLiked ? 1 : -1;
+};
 
 const previewImage = (index: number) => {
   uni.previewImage({
     current: index,
     urls: post.value.images || [],
   });
+};
+
+const queryComments = async (pid: number) => {
+  try {
+    commentApi.commentList(pid).then((res) => {
+      comments.value = res.data;
+      post.value.comments = res.data.length;
+    });
+  } catch (error) {
+    console.error("获取评论列表失败:", error);
+  }
+};
+
+const commentInput = ref("");
+
+const openCommentInput = (sname: string) => {
+  uni.showModal({
+    title: "添加评论",
+    editable: true,
+    placeholderText: "输入你的评论...",
+    success: (res) => {
+      if (res.confirm) {
+        addComment(res.content, sname);
+      }
+    },
+  });
+};
+
+const addComment = async (content, sname) => {
+  if (!content) return;
+  if (sname) {
+    sname = "回复:" + sname;
+  };
+  const response = await commentApi.createComment({
+      postId: postId.value,
+      content: content,
+      superName: sname,
+      uid: 27,
+  });
+  queryComments(postId.value);
+  post.value.comments += 1;
+};
+
+const toggleFollow = () => {
+  post.value.isFav = !post.value.isFav;
 };
 </script>
 
@@ -191,6 +260,20 @@ const previewImage = (index: number) => {
         color: #999;
         margin-top: 8rpx;
       }
+    }
+
+    .follow-button {
+      flex-shrink: 0;
+      background-color: #71b3f8;
+      border-radius: 20rpx;
+      padding: 5rpx 22rpx;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8rpx;
+      height: 50rpx;
+      box-shadow: 0 2rpx 6rpx rgba(0, 122, 255, 0.3);
+      color: white; 
     }
   }
 }
@@ -308,6 +391,20 @@ const previewImage = (index: number) => {
       font-size: 28rpx;
       color: #666;
     }
+  }
+}
+.location {
+  font-size: 24rpx;
+  color: #666;
+  display: flex;
+  background-color: #f5f7fa;
+  padding: 4rpx 12rpx;
+  border-radius: 16rpx;
+  gap: 15rpx;
+
+  &::before {
+    content: "📍";
+    font-size: 24rpx;
   }
 }
 </style>

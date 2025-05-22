@@ -1,5 +1,17 @@
 <template>
   <view class="container">
+    <!-- 微信授权登录弹窗 -->
+    <view v-if="showLoginModal" class="login-modal-overlay">
+      <view class="login-modal-content">
+        <text class="modal-title">登录研习宝</text>
+        <text class="modal-subtitle">获取更完整的服务体验</text>
+        <button class="authorize-button" @click="handleAuthorizeLogin">
+          <uni-icons type="weixin" size="20" color="#fff"></uni-icons>
+          <text>微信一键登录</text>
+        </button>
+        <button class="skip-button" @click="handleSkipLogin">暂不登录</button>
+      </view>
+    </view>
     <!-- 加载动画 -->
     <uni-load-more
       v-if="loading"
@@ -42,7 +54,7 @@
     </view>
 
     <!-- 热门话题 -->
-    <view class="hot-topics">
+    <!-- <view class="hot-topics">
       <view class="section-title">
         <uni-icons type="fire" size="20" color="#ff0000" />
         <text>热门话题</text>
@@ -52,6 +64,17 @@
           #{{ tag }}
         </view>
       </view>
+    </view> -->
+    <view class="scrolling-announcement">
+      <scroll-view scroll-x="true" class="announcement-bar">
+        <view
+          class="announcement-item"
+          v-for="(announcement, index) in announcements"
+          :key="index"
+        >
+          {{ announcement }}
+        </view>
+      </scroll-view>
     </view>
     <view class="post-list">
       <view
@@ -63,8 +86,13 @@
         <view class="post-header">
           <image class="avatar" :src="post.avatar" mode="aspectFill"></image>
           <view class="user-info">
-            <text class="username">{{ post.username }}</text>
-            <!-- Time moved to footer -->
+            <view class="user-basic">
+              <text class="username">{{ post.username }}</text>
+              <text class="university">{{ post.userUniversity }}</text>
+            </view>
+            <view class="post-tags" v-if="post.tags && post.tags.length > 0">
+              <text class="tag">{{ post.tags }}</text>
+            </view>
           </view>
         </view>
         <view class="post-content">
@@ -72,15 +100,15 @@
           <text class="content">{{ post.content }}</text>
           <view
             class="post-images"
-            v-if="post.images && post.images.length > 0"
+            v-if="post.imageList && post.imageList.length > 0"
           >
             <image
-              v-for="(img, idx) in post.images.slice(0, 3)"
+              v-for="(img, idx) in post.imageList.slice(0, 3)"
               :key="idx"
               :src="img"
               mode="aspectFill"
               class="post-image"
-              @click="previewImage(post.images, idx)"
+              @click="previewImage(post.imageList, idx)"
             />
           </view>
         </view>
@@ -88,7 +116,7 @@
           <view class="actions-left">
             <view class="action-item">
               <uni-icons type="chat" size="20"></uni-icons>
-              <text>{{ post.comments }}</text>
+              <!-- <text>{{ post.comments }}</text> -->
             </view>
             <view class="action-item" @click.stop="toggleLike(index)">
               <uni-icons
@@ -99,7 +127,10 @@
               <text>{{ post.likes }}</text>
             </view>
           </view>
-          <text class="time">{{ post.time }}</text>
+          <view class="location">
+            <text>{{ post.location }}</text>
+            <text>{{ post.updateTime }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -109,137 +140,136 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { onShow } from "@dcloudio/uni-app";
+import {
+  onShow,
+  onLoad,
+  onReachBottom,
+  onPullDownRefresh,
+} from "@dcloudio/uni-app";
+import { postApi } from "@/api";
+
+interface Post {
+  id: number;
+  avatar: string;
+  username: string;
+  userUniversity: string;
+  updateTime: string;
+  title: string;
+  content: string;
+  likes: number;
+  isLiked: boolean;
+  imageList?: string[];
+  location: string;
+  tags?: string[];
+  comments: 0;
+}
+
+const showLoginModal = ref(false);
+const isLoggedIn = ref(false);
 
 const currentCategory = ref(0);
 const loading = ref(false);
+const page = ref(1);
+const size = ref(10);
 
-const categories = ["推荐", "难题问答", "考研新闻"];
+const categories = ["推荐", "难题问答", "考研新闻", "资料下载"];
 
 const hotTopics = ["考研英语", "数学真题", "调剂信息", "院校选择"];
 
-const posts = ref<
-  Array<{
-    avatar: string;
-    username: string;
-    time: string;
-    title: string;
-    content: string;
-    comments: number;
-    likes: number;
-    isLiked: boolean;
-    images?: string[];
-  }>
->([
+const announcements = ["🎉欢迎来到研习宝！", "分享最新的考研经验和资料。"];
+
+const posts = ref<Post[]>([
   {
-    avatar: "/static/logo.png",
+    id: 1,
+    avatar: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
     username: "考研人加油",
-    time: "10分钟前",
+    userUniversity: "清华大学",
+    updateTime: "2024-01-20",
     title: "分享我的考研复习时间规划，建议收藏！",
     content:
       "大家好，我是24考研备考的同学，这里分享一下我的复习计划和时间安排。数学每天4小时，英语2小时，专业课3小时...",
-    comments: 45,
     likes: 128,
     isLiked: false,
-    images: ["/static/posts/post-2.png", "/static/posts/post-3.png"],
+    imageList: [
+      "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-2.png",
+      "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-3.png",
+    ],
+    location: "北京",
+    tags: "考研规划",
   },
   {
+    id: 2,
     avatar: "/static/logo.png",
     username: "英语学姐",
-    time: "30分钟前",
+    userUniversity: "北京外国语大学",
+    updateTime: "2024-01-20",
     title: "考研英语长难句解析技巧",
     content:
       "今天给大家分享几个实用的长难句解析方法，让你轻松应对考研英语阅读理解...",
-    comments: 32,
     likes: 96,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    isLiked: false,
+    imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    location: "北京",
+    tags: "英语学习",
   },
   {
+    id: 3,
     avatar: "/static/logo.png",
     username: "数学大神",
-    time: "1小时前",
+    userUniversity: "北京大学",
+    updateTime: "2024-01-20",
     title: "考研数学高频考点整理",
     content:
       "整理了最近五年考研数学的高频考点，包括微积分、线性代数、概率论重要知识点...",
-    comments: 67,
     likes: 215,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    isLiked: false,
+    imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    location: "北京",
+    tags: "数学",
   },
   {
+    id: 4,
     avatar: "/static/logo.png",
     username: "政治小帮手",
-    time: "2小时前",
+    userUniversity: "中国人民大学",
+    updateTime: "2024-01-20",
     title: "2024考研政治大纲变化解析",
     content: "最新的考研政治大纲已经公布，本文详细分析了变化内容和复习建议...",
-    comments: 89,
     likes: 342,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    isLiked: false,
+    imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    location: "北京",
+    tags: "政治",
   },
   {
+    id: 5,
     avatar: "/static/logo.png",
     username: "计科老学长",
-    time: "3小时前",
+    userUniversity: "浙江大学",
+    updateTime: "2024-01-20",
     title: "计算机专业课408复习经验",
     content:
       "分享一下408四门课程的复习方法和重点内容，希望对计算机考研的同学有帮助...",
-    comments: 56,
     likes: 167,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    isLiked: false,
+    imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    location: "浙江",
+    tags: "经验分享",
   },
   {
+    id: 6,
     avatar: "/static/logo.png",
     username: "考研规划师",
-    time: "4小时前",
+    userUniversity: "复旦大学",
+    updateTime: "2024-01-20",
     title: "暑假考研复习如何规划？",
     content:
       "暑假是考研复习的黄金时期，如何合理安排时间和调整状态？这里有详细的建议...",
-    comments: 78,
     likes: 245,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
-  },
-  {
-    avatar: "/static/logo.png",
-    username: "考研心理",
-    time: "5小时前",
-    title: "考研备考期间如何调节心理压力",
-    content:
-      "备考压力大是很多同学都会遇到的问题，分享几个实用的心理调节方法...",
-    comments: 92,
-    likes: 301,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
-  },
-  {
-    avatar: "/static/logo.png",
-    username: "资料分享官",
-    time: "6小时前",
-    title: "最新考研资料合集分享",
-    content:
-      "整理了各个科目的复习资料，包括视频、讲义、真题等，欢迎大家下载学习...",
-    comments: 120,
-    likes: 458,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
-  },
-  {
-    avatar: "/static/logo.png",
-    username: "考研答疑",
-    time: "7小时前",
-    title: "考研常见问题解答汇总",
-    content:
-      "收集了考研备考过程中的常见问题，包括报考、调剂、复试等各个方面的详细解答...",
-    comments: 86,
-    likes: 279,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
-  },
-  {
-    avatar: "/static/logo.png",
-    username: "院校信息库",
-    time: "8小时前",
-    title: "2024年热门院校报考分析",
-    content:
-      "详细分析了各个热门院校的报考情况、录取分数、专业设置等信息，供大家参考...",
-    comments: 95,
-    likes: 334,
-    images: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    isLiked: false,
+    imageList: ["/static/logo.png", "/static/logo.png", "/static/logo.png"],
+    location: "上海",
+    tags: "暑假规划",
   },
 ]);
 
@@ -253,22 +283,134 @@ const navigateToPostPage = () => {
   uni.navigateTo({ url: "/pages/postPage/index" });
 };
 
-const navigateToPostDetail = (post: any) => {
-  uni.navigateTo({ url: `/pages/postDetail/index` });
+const navigateToPostDetail = (post: Post) => {
+  uni.navigateTo({ url: `/pages/postDetail/index?id=${post.id}` });
+};
+
+// 加载帖子列表数据
+const loadPosts = async (isRefresh = false) => {
+  loading.value = true;
+  try {
+    // 如果未登录且非跳过登录，则不加载帖子
+    if (!isLoggedIn.value && showLoginModal.value) {
+      loading.value = false;
+      return;
+    }
+    const response = await postApi.getPostList({
+      page: isRefresh ? 1 : page.value++,
+      size: size.value,
+    });
+
+    let newPosts = [];
+    if (!response.data || response.data.length === 0) {
+      // 如果接口返回空数据，使用示例数据
+      newPosts = posts.value.map((post) => ({
+        ...post,
+        updateTime: `${new Date().getFullYear()}-${String(
+          new Date().getMonth() + 1
+        ).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`,
+        comments: post.comments,
+      }));
+    } else {
+      newPosts = response.data.list.map((post) => ({
+        ...post,
+        updateTime: `${new Date(post.updateTime).getFullYear()}-${String(
+          new Date(post.updateTime).getMonth() + 1
+        ).padStart(2, "0")}-${String(
+          new Date(post.updateTime).getDate()
+        ).padStart(2, "0")}`,
+        comments: post.comments,
+      }));
+    }
+
+    posts.value = isRefresh ? newPosts : [...posts.value, ...newPosts];
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 下拉刷新
+onPullDownRefresh(() => {
+  page.value = 1;
+  loadPosts(true);
+  uni.stopPullDownRefresh();
+});
+
+// 页面加载时获取数据
+onLoad(async () => {
+  // 检查本地存储的登录状态
+  try {
+    const storedLoginStatus = uni.getStorageSync("isLoggedIn");
+    if (storedLoginStatus) {
+      isLoggedIn.value = true;
+      await loadPosts(true); // 已登录，直接加载数据
+    } else {
+      showLoginModal.value = true; // 未登录，显示登录弹窗
+    }
+  } catch (e) {
+    console.error("Failed to get login status from storage:", e);
+    showLoginModal.value = true; // 发生错误时也显示登录弹窗
+  }
+});
+
+const handleAuthorizeLogin = async () => {
+  try {
+    // @ts-ignore
+    const loginRes = await uni.login({ provider: "weixin" });
+    if (loginRes.errMsg === "login:ok") {
+      console.log("微信登录凭证:", loginRes.code);
+      uni.setStorageSync("isLoggedIn", true);
+      isLoggedIn.value = true;
+      showLoginModal.value = false;
+      await loadPosts(true); 
+      uni.showToast({ title: "登录成功", icon: "success" });
+    } else {
+      uni.showToast({ title: "微信登录取消或失败", icon: "none" });
+      await loadPosts(true);
+      showLoginModal.value = false; 
+    }
+  } catch (error) {
+    console.error("微信登录过程中发生错误:", error);
+    uni.showToast({ title: "微信登录失败", icon: "none" });
+    await loadPosts(true);
+    showLoginModal.value = false; 
+  }
+};
+
+const handleSkipLogin = async () => {
+  showLoginModal.value = false;
+  isLoggedIn.value = false; 
+  await loadPosts(true); 
 };
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
   if (index !== 0) {
-    // 如果不是推荐分类
-    const categoryPages = ["", "/pages/qa/index", "/pages/news/index"];
+    const categoryPages = [
+      "",
+      "/pages/qa/index",
+      "/pages/news/index",
+      "/pages/study/index",
+    ];
     uni.navigateTo({
       url: categoryPages[index],
     });
   }
 };
 
-// 页面显示时重置分类为推荐
+// 触底加载更多
+onReachBottom(() => {
+  if (!loading.value) {
+    loadPosts();
+  }
+});
+
+// 页面加载时获取数据
+// onLoad(() => {
+//   loadPosts(true);
+// }); // Removed duplicate onLoad
+
+// 页面显示时重置分类为推荐并加载数据
 onShow(() => {
   currentCategory.value = 0;
 });
@@ -418,18 +560,40 @@ const toggleLike = (index: number) => {
     }
 
     .user-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       flex: 1;
 
-      .username {
-        font-size: 28rpx;
-        font-weight: bold;
-        color: #333;
+      .user-basic {
+        display: flex;
+        flex-direction: column;
+
+        .username {
+          font-size: 28rpx;
+          font-weight: bold;
+          color: #333;
+        }
+
+        .university {
+          font-size: 24rpx;
+          color: #666;
+        }
       }
 
-      .time {
-        font-size: 24rpx;
-        color: #999;
-        margin-top: 4rpx;
+      .post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8rpx;
+
+        .tag {
+          font-size: 20rpx;
+          color: #007aff;
+          background-color: rgba(0, 122, 255, 0.1);
+          padding: 4rpx 12rpx;
+          border-radius: 12rpx;
+          border: 1rpx solid rgba(0, 122, 255, 0.2);
+        }
       }
     }
   }
@@ -471,8 +635,8 @@ const toggleLike = (index: number) => {
 
   .post-footer {
     display: flex;
-    justify-content: space-between; // Align items to start and end
-    align-items: center; // Vertically center items
+    justify-content: space-between;
+    align-items: center;
     border-top: 1rpx solid #f0f0f0;
     padding-top: 20rpx;
 
@@ -481,9 +645,19 @@ const toggleLike = (index: number) => {
       align-items: center;
     }
 
-    .time {
+    .location {
       font-size: 24rpx;
-      color: #999;
+      color: #666;
+      display: flex;
+      background-color: #f5f7fa;
+      padding: 4rpx 12rpx;
+      border-radius: 16rpx;
+      gap: 15rpx;
+
+      &::before {
+        content: "📍";
+        font-size: 24rpx;
+      }
     }
 
     .action-item {
@@ -525,5 +699,113 @@ const toggleLike = (index: number) => {
   > view:first-child {
     flex-grow: 1;
   }
+}
+.scrolling-announcement {
+  background-color: rgba(
+    230,
+    247,
+    255,
+    0.9
+  ); /* Light blue, slightly transparent */
+  border: 1px solid #b3e5fc; /* Softer border color */
+  border-radius: 12rpx; /* Rounded corners */
+  padding: 12rpx 20rpx; /* Adjusted padding */
+  margin: 0 20rpx 20rpx 20rpx; /* Align with post-list and add bottom margin */
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.08); /* Subtle shadow */
+  overflow: hidden; /* Ensure content respects border-radius */
+}
+
+.announcement-item {
+  display: inline-block;
+  font-size: 26rpx; /* Slightly larger font */
+  color: #0284c7; /* Darker blue for better contrast and theme alignment */
+  padding-right: 50rpx; /* Add some spacing between repeated items if they are close */
+}
+
+.announcement-bar {
+  /* overflow: hidden; // Already handled by scrolling-announcement */
+  white-space: nowrap;
+  animation: scroll-left 15s linear infinite; /* Slightly slower animation */
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%); /* Ensure it scrolls completely out */
+  }
+}
+
+/* 登录弹窗样式 */
+.login-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align to bottom */
+  z-index: 999;
+}
+
+.login-modal-content {
+  background-color: #fff;
+  padding: 40rpx;
+  border-top-left-radius: 30rpx; /* Rounded corners for top */
+  border-top-right-radius: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Full width */
+  box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.1); /* Shadow on top */
+  padding-bottom: env(safe-area-inset-bottom); /*适配全面屏底部安全区域*/
+}
+
+.modal-title {
+  font-size: 40rpx; /* Increased font size */
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx; /* Increased margin */
+}
+
+.modal-subtitle {
+  font-size: 30rpx; /* Increased font size */
+  color: #666;
+  margin-bottom: 60rpx; /* Increased margin for more space */
+  text-align: center;
+}
+
+.authorize-button {
+  background-color: #07c160; /* 统一微信绿 */
+  color: #fff;
+  border: none;
+  border-radius: 50rpx; /* More rounded */
+  padding: 24rpx 0; /* Increased padding */
+  font-size: 34rpx; /* Increased font size */
+  width: 90%; /* Slightly less than full width for better aesthetics */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30rpx; /* Increased margin */
+  box-shadow: 0 4rpx 10rpx rgba(7, 193, 96, 0.4); /* Enhanced shadow */
+}
+
+.authorize-button text {
+  margin-left: 12rpx; /* Adjusted margin */
+}
+
+.skip-button {
+  background-color: #f0f0f0; /* Slightly darker for better contrast */
+  color: #555; /* Darker text */
+  border: none; /* Removed border for a cleaner look */
+  border-radius: 50rpx; /* More rounded */
+  padding: 24rpx 0; /* Increased padding */
+  font-size: 34rpx; /* Increased font size */
+  width: 90%; /* Slightly less than full width */
+  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+  margin-bottom: 20rpx; /* Add some bottom margin */
 }
 </style>

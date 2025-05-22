@@ -13,6 +13,12 @@
       }
     },
     {
+      "path": "pages/qaPage/index",
+      "style": {
+        "navigationBarTitleText": "我要提问"
+      }
+    },
+    {
       "path": "pages/news/index",
       "style": {
         "navigationBarTitleText": "新闻资讯"
@@ -69,7 +75,15 @@
     {
       "path": "pages/my/index",
       "style": {
-        "navigationBarTitleText": "我的"
+        "navigationBarTitleText": "我的",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/myPost/index",
+      "style": {
+        "navigationBarTitleText": "我的帖子",
+        "enablePullDownRefresh": true
       }
     },
     {
@@ -89,13 +103,44 @@
       "style": {
         "navigationBarTitleText": "收藏"
       }
+    },
+    {
+      "path": "pages/newsDetail/index",
+      "style": {
+        "navigationBarTitleText": "新闻详情"
+      }
+    },
+    {
+      "path": "pages/study/index",
+      "style": {
+        "navigationBarTitleText": "资料下载"
+      }
+    },
+    {
+      "path": "pages/addGroup/index",
+      "style": {
+        "navigationBarTitleText": "搜索群聊"
+      }
+    },
+    {
+      "path": "pages/groupSet/index",
+      "style": {
+        "navigationBarTitleText": "群成员管理"
+      }
+    },
+    {
+      "path": "pages/createGroup/index",
+      "style": {
+        "navigationBarTitleText": "创建群聊"
+      }
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "研习宝",
     "navigationBarBackgroundColor": "#ffffff",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "enablePullDownRefresh": true
   },
   "tabBar": {
     "color": "#000",

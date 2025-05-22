@@ -2,8 +2,8 @@
   <view class="container">
     <!-- 头部导航 -->
     <view class="nav-bar">
-      <text class="page-title">发布帖子</text>
-      <button class="submit-btn" :disabled="!postContent" @click="handlePush">
+      <text class="page-title">我要提问</text>
+      <button class="submit-btn" :disabled="!postContent" @click="handleSubmit">
         发布
       </button>
     </view>
@@ -13,14 +13,14 @@
       <view class="card">
         <input
           class="title-input"
-          placeholder="请输入帖子标题"
+          placeholder="请输入问题标题"
           v-model="postTitle"
           maxlength="50"
         />
         <view class="divider"></view>
         <textarea
           class="content-input"
-          placeholder="分享你的想法..."
+          placeholder="描述你的问题"
           v-model="postContent"
           auto-height
           maxlength="500"
@@ -48,11 +48,7 @@
       <view class="card options-section">
         <view class="option-item" @click="selectTags">
           <uni-icons type="chat" size="20" />
-          <text>{{ showTag || "选择标签" }}</text>
-        </view>
-        <view class="option-item" @click="getLocation">
-          <uni-icons type="location" size="20" />
-          <text>{{ location || "添加位置" }}</text>
+          <text>{{ showTag || "选择科目" }}</text>
         </view>
       </view>
     </view>
@@ -69,7 +65,6 @@
 <script setup lang="ts">
 import { postApi, fileApi } from "@/api";
 import { ref, computed } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/store/userStore";
 const userStore = useUserStore();
 const userInfo = userStore.getUserInfo;
@@ -77,16 +72,13 @@ const userInfo = userStore.getUserInfo;
 const postTitle = ref("");
 const postContent = ref("");
 const selectedImages = ref<String[]>([]);
-const location = ref("");
 const showTag = ref("");
-const comments = ref(1);
 const uid = ref(0);
-const postId = ref(0);
 const selectedTags = ref<string[]>([
-  "考研经验",
-  "学习方法",
-  "心态调整",
-  "择校指导",
+  "高数",
+  "英语",
+  "政治",
+  "专业课",
 ]);
 
 const imageStyles = {
@@ -112,14 +104,6 @@ const selectTags = () => {
   });
 };
 
-const getLocation = async () => {
-  try {
-    const res = await uni.chooseLocation();
-    location.value = res.address;
-  } catch (error) {
-    console.error("获取位置失败:", error);
-  }
-};
 
 const chooseImage = () => {
   uni.chooseImage({
@@ -145,14 +129,6 @@ const handleImageDelete = (index: number) => {
   selectedImages.value.splice(index, 1);
 };
 
-const handlePush = () => {
-  if (postId.value === 0) {
-    handleSubmit();
-  } else {
-    handleUpdate();
-  }
-}
-
 const handleSubmit = async () => {
   if (!postTitle.value || !postContent.value) {
     uni.showToast({ title: "发布失败！请填写完整", icon: "none" });
@@ -166,9 +142,9 @@ const handleSubmit = async () => {
     title: postTitle.value,
     content: postContent.value,
     imageList: selectedImages.value,
-    location: location.value,
     tags: showTag.value,
     authorId: userInfo.uid,
+    comments: "2",
   };
 
   uni.showLoading({ title: "发布中..." });
@@ -185,60 +161,9 @@ const handleSubmit = async () => {
   }
 };
 
-const handleUpdate = () => {
-  if (!postTitle.value || !postContent.value) {
-    uni.showToast({ title: "发布失败！请填写完整", icon: "none" });
-    return;
-  }
-  if (userInfo.uid === 0) {
-    uni.showToast({ title: "登录状态失效", icon: "none" });
-    return;
-  }
-  if (postId.value === 0) {
-    uni.showToast({ title: "网络异常，发布失败", icon: "none" });
-    return;
-  }
-  const formData = {
-    id: postId.value,
-    title: postTitle.value,
-    content: postContent.value,
-    imageList: selectedImages.value,
-    location: location.value,
-    tags: showTag.value,
-  };
-  uni.showLoading({ title: "发布中..." });
-  try {
-    postApi.updatePost(formData).then(() => {
-      uni.hideLoading();
-      uni.showToast({ title: "发布成功" });
-      uni.navigateBack();
-    })
-  } catch (error) {
-    console.error("发布失败:", error);
-    uni.hideLoading();
-    uni.showToast({ title: "发布失败! 网络异常", icon: "none" });
-  }
-};
-
 const navigateBack = () => {
   uni.navigateBack();
 };
-
-onLoad( async (options) => {
-  if (options && options.id) {
-    postId.value = Number(options.id);
-    const res = await postApi.getPostDetail(postId.value);
-    postContent.value = res.data.content;
-    postTitle.value = res.data.title;
-    location.value = res.data.location;
-    showTag.value = res.data.tags;
-    comments.value = res.data.comments;
-    if (res.data.imageList.length > 0) {
-      selectedImages.value = [...selectedImages.value, ...res.data.imageList];
-    }
-  }
-});
-
 </script>
 
 <style lang="scss">

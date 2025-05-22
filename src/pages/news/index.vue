@@ -14,11 +14,13 @@
 
     <view class="header-section">
       <view class="nav-bar">
-        <view @click="navigateToSearchPage">
+        <view>
           <uni-search-bar
             placeholder="搜索考研新闻资讯"
             radius="40"
             clearButton="auto"
+            @confirm="onSearch"
+            @input="onInput"
           />
         </view>
       </view>
@@ -47,15 +49,15 @@
       >
         <view class="news-content">
           <text class="title">{{ news.title }}</text>
-          <text class="summary">{{ news.summary }}</text>
+          <text class="summary">{{ news.content }}</text>
           <view class="news-footer">
-            <view class="source">{{ news.source }}</view>
-            <text class="time">{{ news.time }}</text>
+            <view class="source">{{ news.publishSource }}</view>
+            <text class="time">{{ news.publishTime }}</text>
           </view>
         </view>
         <image
-          v-if="news.image"
-          :src="news.image"
+          v-if="news.images"
+          :src="news.images"
           mode="aspectFill"
           class="news-image"
         />
@@ -66,70 +68,111 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { newsApi } from "@/api";
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 
 const currentCategory = ref(0);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const title = ref("");
+const theme = ref("");
 const loading = ref(false);
-
-const categories = ["全部", "考研政策", "院校动态", "调剂信息", "考研大纲"];
-
-const newsList = ref([
+const newsList = ref<News[]>([
   {
     title: "2024年全国硕士研究生考试大纲公布",
-    summary:
+    content:
       "教育部近日公布2024年全国硕士研究生招生考试大纲，本次大纲较去年有以下变化...",
-    source: "教育部官网",
-    time: "2小时前",
-    image: "/static/posts/post-2.png",
+    publishSource: "教育部官网",
+    publishTime: "2小时前",
+    images: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-2.png",
   },
   {
     title: "多所高校公布2024年硕士研究生招生计划",
-    summary:
+    content:
       "近期，包括清华大学、北京大学在内的多所高校陆续公布2024年硕士研究生招生计划...",
-    source: "中国教育在线",
-    time: "4小时前",
-    image: "/static/posts/post-3.png",
-  },
-  {
-    title: "2023年考研国家线公布，历年最低",
-    summary:
-      "2023年全国硕士研究生招生考试考生进入复试的初试成绩基本要求（国家线）公布...",
-    source: "人民日报",
-    time: "昨天",
-    image: "/static/posts/post-4.png",
-  },
-  {
-    title: "教育部：做好2024年全国硕士研究生考试疫情防控工作",
-    summary:
-      "教育部下发通知，要求各地各高校科学精准做好2024年全国硕士研究生考试疫情防控工作...",
-    source: "新华网",
-    time: "昨天",
-    image: "/static/posts/post-1.png",
-  },
-  {
-    title: "2024考研预报名系统将于9月开通",
-    summary:
-      "2024年全国硕士研究生考试预报名系统将于9月开通，考生可提前准备相关材料...",
-    source: "中国教育报",
-    time: "2天前",
-    image: "/static/posts/post-2.png",
+    publishSource: "中国教育在线",
+    publishTime: "4小时前",
+    images: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/post-3.png",
   },
 ]);
 
-const router = useRouter();
+interface News {
+  title: string;
+  content: string;
+  publishSource: string;
+  publishTime: string;
+  images: string;
+  relatedUniversity: string;
+  tags: string;
+}
 
-const navigateToSearchPage = () => {
-  uni.navigateTo({ url: "/pages/searchPage/index" });
+const categories = ["全部", "考研政策", "院校动态", "调剂信息", "考研大纲"];
+
+// 获取新闻列表数据
+const fetchNewsList = async (isRefresh = false) => {
+  try {
+    loading.value = true;
+    let news = [];
+    const params: {
+      titles?: string;
+      theme?: string;
+      page?: number;
+      size?: number;
+    } = {
+      page: isRefresh ? 1 : currentPage.value++,
+      size: pageSize.value,
+      title: title.value,
+      theme: theme.value,
+    };
+    const res = await newsApi.searchNews(params);
+    news = res.data.list.map((n) => ({
+      ...n,
+      publishTime: new Date(n.publishTime).toISOString().split("T")[0],
+    }));
+    newsList.value = isRefresh ? news : [...newsList.value, ...news];
+  } catch (error) {
+    console.error("获取新闻列表失败:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const navigateToNewsDetail = (news: any) => {
-  uni.navigateTo({ url: `/pages/postDetail/index` });
+  const newsId = news.id || "1";
+  uni.navigateTo({ url: `/pages/newsDetail/index?id=${newsId}` });
 };
 
 const handleCategoryClick = (index: number) => {
   currentCategory.value = index;
-  // 这里可以根据分类筛选新闻
+  // 根据分类获取新闻
+  const category = categories[index];
+  if (category === "全部") {
+    theme.value = "";
+    fetchNewsList(true);
+    return;
+  }
+  theme.value = categories[index];
+  fetchNewsList(true);
 };
+
+const onInput = (event) => {
+  title.value = event.value;
+}
+
+const onSearch = (event) => {
+  title.value = event.value;
+  fetchNewsList(true);
+};
+// 触底加载更多
+onReachBottom(() => {
+  if (!loading.value) {
+    fetchNewsList();
+  }
+});
+// 页面加载时获取新闻数据
+onLoad(() => {
+  fetchNewsList(true);
+});
 </script>
 
 <style lang="scss">

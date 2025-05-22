@@ -2,7 +2,12 @@
   <view class="container">
     <!-- 搜索框 -->
     <view class="search-box">
-      <input type="text" class="search-input" placeholder="搜索大学的名称" />
+      <input
+        type="text"
+        class="search-input"
+        placeholder="搜索大学的名称"
+        @blur="handleSearchInput"
+      />
       <text class="search-icon">🔍</text>
     </view>
 
@@ -48,11 +53,11 @@
         :key="school.id"
         @click="navigateToLibDetail(school.id)"
       >
-        <image class="school-logo" :src="school.logo" mode="aspectFit" />
+        <image class="school-logo" :src="school.badge" mode="aspectFit" />
         <view class="school-info">
           <text class="school-name">{{ school.name }}</text>
           <view class="school-location">
-            <text>{{ school.location }}</text>
+            <text>{{ school.city }}</text>
             <text class="divider">|</text>
             <text>{{ school.type }}</text>
           </view>
@@ -69,18 +74,47 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-
+import { schoolApi } from "@/api";
+import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 // 筛选选项数据
 const cityOptions = [
-  "北京市",
-  "上海市",
-  "浙江省",
-  "江苏省",
-  "安徽省",
-  "湖北省",
+  "北京",
+  "杭州",
+  "上海",
+  "南京",
+  "合肥",
+  "武汉",
+  "南昌",
+  "哈尔滨",
+  "天津",
+  "广州",
+  "西安",
+  "成都",
+  "长沙",
+  "长春",
+  "济南",
+  "大连",
+  "重庆",
+  "杨凌",
+  "青岛",
+  "兰州",
+  "沈阳",
+  "苏州",
+  "徐州",
+  "无锡",
+  "福州",
+  "郑州",
+  "昆明",
+  "太原",
+  "厦门",
 ];
 
-const typeOptions = ["综合类", "理工类"];
+const typeOptions = [
+"综合性大学",
+"理工类大学",
+"农林类大学",
+"师范类大学",
+];
 
 // 下拉框显示状态
 const showCityDropdown = ref(false);
@@ -89,113 +123,169 @@ const showTypeDropdown = ref(false);
 // 选中的筛选条件
 const selectedCity = ref("");
 const selectedType = ref("");
+const univName = ref("");
+const loading = ref(false);
+const page = ref(1);
+const size = ref(10);
 
-// 处理筛选条件选择
-const handleCitySelect = (city: string) => {
-  selectedCity.value = city;
-  showCityDropdown.value = false;
-};
+interface School {
+  id: number;
+  name: string;
+  // majorInfo: string;
+  type: string;
+  // introduction: string;
+  city: string;
+  badge: string;
+  tags: string;
 
-const handleTypeSelect = (type: string) => {
-  selectedType.value = type;
-  showTypeDropdown.value = false;
-};
-
-
-const navigateToLibDetail = (schoolId: number) => {
-  uni.navigateTo({ url: `/pages/libDetail/index` });
 }
-
-const schools = [
+const schools = ref<School[]>([
   {
     id: 0,
     name: "华东交通大学",
-    logo: "/static/ulogo/ECJTU.svg",
-    location: "南昌市",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ECJTU.svg",
+    city: "南昌市",
     type: "理工类",
     tags: ["省部共建"],
   },
   {
     id: 1,
     name: "清华大学",
-    logo: "/static/ulogo/THU.svg",
-    location: "北京市",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/THU.svg",
+    city: "北京市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 2,
     name: "北京大学",
-    logo: "/static/ulogo/PKU.svg",
-    location: "北京市",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/PKU.svg",
+    city: "北京市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 3,
     name: "浙江大学",
-    logo: "/static/ulogo/ZJU.svg",
-    location: "浙江省",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/ZJU.svg",
+    city: "浙江省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 4,
     name: "上海交通大学",
-    logo: "/static/ulogo/SJTU.svg",
-    location: "上海市",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/SJTU.svg",
+    city: "上海市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 5,
     name: "南京大学",
-    logo: "/static/ulogo/NJU.svg",
-    location: "江苏省",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/NJU.svg",
+    city: "江苏省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 6,
     name: "复旦大学",
-    logo: "/static/ulogo/FDU.svg",
-    location: "上海市",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/FDU.svg",
+    city: "上海市",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 7,
     name: "中国科学技术大学",
-    logo: "/static/ulogo/USTC.svg",
-    location: "安徽省",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/USTC.svg",
+    city: "安徽省",
     type: "理工类",
     tags: ["985", "211", "双一流", "中国科学院直属"],
   },
   {
     id: 8,
     name: "华中科技大学",
-    logo: "/static/ulogo/HUST.svg",
-    location: "湖北省",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/HUST.svg",
+    city: "湖北省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
   },
   {
     id: 9,
     name: "武汉大学",
-    logo: "/static/ulogo/WHU.svg",
-    location: "湖北省",
+    badge: "https://pic-buc.oss-cn-hangzhou.aliyuncs.com/yxb/ulogo/WHU.svg",
+    city: "湖北省",
     type: "综合类",
     tags: ["985", "211", "双一流", "教育部直属"],
-  },
-  {
-    id: 10,
-    name: "西安交通大学",
-    logo: "/static/ulogo/XJTU.svg",
-    location: "陕西省",
-    type: "综合类",
-    tags: ["985", "211", "双一流", "教育部直属"],
-  },
-];
+  }
+]);
+// 处理筛选条件选择
+const handleCitySelect = (city: string) => {
+  selectedCity.value = city;
+  showCityDropdown.value = false;
+  getSchoolList(true);
+};
+
+const handleTypeSelect = (type: string) => {
+  selectedType.value = type;
+  showTypeDropdown.value = false;
+  getSchoolList(true);
+};
+
+const getSchoolList = async (isRefresh = false) => {
+  loading.value = true;
+  let newList = [];
+  try {
+    const res = await schoolApi.condQuery({
+      page: isRefresh ? 1 : page.value++,
+      size: size.value,
+      city: selectedCity.value,
+      type: selectedType.value,
+      univName: univName.value,
+    });
+    if (res.data.total === null || res.data.total === 0) {
+      uni.showToast({
+        title: "未查询到数据",
+        icon: "none",
+      });
+    } else {
+      newList = res.data.list.map((item) => ({
+        ...item,
+        tags: splitTags(item.tags),
+      }));
+  }
+    schools.value = isRefresh ? newList : [...schools.value, ...newList];
+} finally {
+  loading.value = false;
+}
+};
+
+const splitTags = (tags: string) => {
+  if (!tags) return 0;
+  return tags.split(",");
+};
+
+const handleSearchInput = (event) => {
+  univName.value = event.target.value;
+  getSchoolList(true);
+};
+
+// 触底加载更多
+onReachBottom(() => {
+  if (!loading.value) {
+    getSchoolList();
+  }
+});
+
+onLoad(() => {
+  getSchoolList(true);
+});
+
+const navigateToLibDetail = (schoolId: number) => {
+  uni.navigateTo({ url: `/pages/libDetail/index?id=${schoolId}` });
+};
 </script>
 
 <style lang="scss">

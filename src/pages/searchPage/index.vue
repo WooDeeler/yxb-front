@@ -57,39 +57,74 @@ const selectHot = (item: { keyword: string }) => {
 
 <style lang="scss">
 .container {
+  background: linear-gradient(40deg, #f5f7fa 0%, #e6f2ff 100%);
+  // background: linear-gradient(180deg, #c1e4f2, #eef1f5);
+  min-height: 100vh;
   padding: 20rpx;
 }
 
+.uni-searchbar {
+  padding: 10rpx 0 !important; // Reduce padding around search bar
+}
+
 .hot-list {
-  margin-top: 40rpx;
+  margin-top: 30rpx;
+  background-color: #fff; // Card background
+  border-radius: 16rpx; // Rounded corners for card
+  padding: 20rpx; // Padding inside card
+  box-shadow: 0 4rpx 16rpx rgba(31, 45, 61, 0.1); // Subtle shadow
+
   .title {
     font-size: 32rpx;
     font-weight: bold;
     color: #333;
     display: block;
-    margin-bottom: 30rpx;
+    margin-bottom: 20rpx; // Spacing below title
+    padding-bottom: 10rpx;
+    border-bottom: 1rpx solid #f0f0f0; // Separator line
   }
+
   .hot-item {
-    padding: 20rpx 0;
+    padding: 24rpx 10rpx; // Increased padding for items
     display: flex;
     align-items: center;
-    border-bottom: 1rpx solid #eee;
-    .index {
-      color: rgb(34, 158, 215);
-      font-size: 28rpx;
-      margin-right: 20rpx;
+    border-bottom: 1rpx solid #f5f5f5; // Lighter separator for items
+    transition: background-color 0.2s;
+
+    &:last-child {
+      border-bottom: none; // No border for the last item
     }
+
+    &:hover {
+      background-color: #f9f9f9; // Hover effect
+    }
+
+    .index {
+      color: #007aff; // Theme color for index
+      font-size: 28rpx;
+      font-weight: bold;
+      margin-right: 20rpx;
+      width: 40rpx; // Fixed width for alignment
+    }
+
     .keyword {
       flex: 1;
       font-size: 28rpx;
       color: #333;
     }
+
     .hot-tag {
-      background: rgb(245, 90, 34);
-      color: rgb(0, 0, 0) ;
+      background: linear-gradient(
+        45deg,
+        #ff9a9e 0%,
+        #fad0c4 99%,
+        #fad0c4 100%
+      ); // Gradient for hot tag
+      color: #fff;
       font-size: 20rpx;
-      padding: 4rpx 12rpx;
-      border-radius: 8rpx;
+      padding: 6rpx 14rpx;
+      border-radius: 20rpx; // More rounded tag
+      font-weight: bold;
     }
   }
 }
