@@ -169,6 +169,7 @@ const handleSubmit = async () => {
     location: location.value,
     tags: showTag.value,
     authorId: userInfo.uid,
+    comments: "1",
   };
 
   uni.showLoading({ title: "发布中..." });

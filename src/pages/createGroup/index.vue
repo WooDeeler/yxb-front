@@ -69,7 +69,7 @@ const handleCreateGroup = async () => {
     status: 1,
   });
   uni.showToast({
-    title: "创建成功 (模拟)",
+    title: "创建成功",
     icon: "success",
   });
   setTimeout(() => {
