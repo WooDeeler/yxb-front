@@ -139,7 +139,7 @@ export const commentApi = {
     return request.post(port + "/comment/createComment", data);
   },
   delete: (id: number) => {
-    return request.post(post + `/comment/delComment?id=${id}`);
+    return request.post(port + `/comment/delComment?id=${id}`);
   },
 };
 
