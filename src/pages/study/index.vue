@@ -93,7 +93,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { fileApi, studyApi } from "@/api";
-import { page } from "hexo/dist/plugins/helper/is";
+
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 
 // 筛选选项数据
