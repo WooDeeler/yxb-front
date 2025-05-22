@@ -91,7 +91,6 @@
 import { ref } from "vue";
 import { onLoad, onReachBottom } from "@dcloudio/uni-app";
 import { majorApi, schoolApi } from "@/api";
-import { page } from "hexo/dist/plugins/helper/is";
 
 const currentCategory = ref(0);
 const loading = ref(false);

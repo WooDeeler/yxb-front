@@ -1,6 +1,4 @@
 import axios from "axios";
-import { url } from "hexo/dist/hexo/default_config";
-import { date } from "hexo/dist/plugins/helper/date";
 const baseURL = "http://119.29.191.232";
 // const baseURL = "http://127.0.0.1";
 
@@ -141,9 +139,10 @@ export const commentApi = {
     return request.post(port + "/comment/createComment", data);
   },
   delete: (id: number) => {
-    return request.post(post + `/comment/delComment?id=${id}`);
+    return request.post(port + `/comment/delComment?id=${id}`);
   },
 };
+
 let port2 = ":8691";
 
 // 文件相关api
