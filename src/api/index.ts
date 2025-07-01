@@ -1,6 +1,6 @@
 import axios from "axios";
-const baseURL = "http://119.29.191.232";
-// const baseURL = "http://127.0.0.1";
+// const baseURL = "http://";
+const baseURL = "http://127.0.0.1";
 
 // 创建axios实例
 const request = axios.create({
